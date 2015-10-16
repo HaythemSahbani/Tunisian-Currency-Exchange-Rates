@@ -22,7 +22,7 @@
 | La Poste Tunisienne (poste)    | [link](http://www.poste.tn)  |   [link](http://www.poste.tn/change.php) |
 | North Africa International Bank (NAIB)    | [link](http://www.naibbank.com)  |   --- |
 | Qatar National Bank (QNB)    | [link](http://www.qnb.com.tn)  |   [link](http://www.qnb.com.tn/en/financial-tools.html?view=financialtools) |
-| Société Tunisienne de Banque (STB)    | [link](http://www.stb.com.tn)  |   [link](www.stb.com.tn/fr/site/bourse.../cours-de-change/) |
+| Société Tunisienne de Banque (STB)    | [link](http://www.stb.com.tn)  |   [link](http://www.stb.com.tn/fr/site/bourse-change/cours-de-change//) |
 | Stusid Bank (Stusid)    | [link](http://www.stusidbank.com.tn)  |   [link](http://www.stusidbank.com.tn/site/publish/content/article.asp?id=78) |
 | Union Bancaire Commerce et Industrie (UBCI)    | [link](http://www.ubci.tn)  |   --- |
 | Union Internationale de Banques (UIB)    | [link](http://www.uib.com.tn)  |   --- |

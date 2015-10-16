@@ -1,0 +1,18 @@
+{"viableBankList":[
+  {"bankCode":"Baraka", "currencyLink":"http://www.albarakabank.com.tn/CoursConvertisseurDevise.aspx"},
+  {"bankCode":"ATB", "currencyLink":"http://www.atb.com.tn/convertisseur"},
+  {"bankCode":"Attijari", "currencyLink":"http://www.attijaribank.com.tn/Fr/Cours_de_change__59_205"},
+  {"bankCode":"BH", "currencyLink":"http://www.bh.com.tn/devise.asp"},
+  {"bankCode":"BT", "currencyLink":"http://www.bt.com.tn/change"},
+  {"bankCode":"BTE", "currencyLink":"http://www.bte.com.tn/?idart=8"},
+  {"bankCode":"BIAT", "currencyLink":"(http://www.biat.com.tn/biat/cours_devise.jsp"},
+  {"bankCode":"BNA", "currencyLink":"http://www.bna.com.tn/devise.asp"},
+  {"bankCode":"BTK", "currencyLink":"http://www.btknet.com/site/fr/convertisseur.php?id_article=33"},
+  {"bankCode":"BTL", "currencyLink":"http://www.btl.com.tn/portal/page?_dad=portal&_schema=PORTAL&_pageid=37%2C391598"},
+  {"bankCode":"Zitouna", "currencyLink":"http://www.banquezitouna.com/Fr/convertisseur-de-devise_64_103"},
+  {"bankCode":"poste", "currencyLink":"http://www.poste.tn/change.php"},
+  {"bankCode":"QNB", "currencyLink":"http://www.qnb.com.tn/en/financial-tools.html?view=financialtools"},
+  {"bankCode":"STB", "currencyLink":"http://www.stb.com.tn/fr/site/bourse-change/cours-de-change/"},
+  {"bankCode":"Stusid", "currencyLink":"http://www.stusidbank.com.tn/site/publish/content/article.asp?id=78"}
+]
+}

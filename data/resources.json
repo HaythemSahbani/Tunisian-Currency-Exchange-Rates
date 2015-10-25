@@ -5,12 +5,12 @@
 
  **/
 
-{ "version":"" /* The date of computation */,
+{ "version":"" /** The date of computation **/,
   "resourceData":
-  [ /* List of banks with the useful currencies data*/
+  [ /** List of banks with the useful currencies data **/
         {"bankCode" : "Baraka", "currencies" :
           [
-            {"currencyCode" : "", "sellValue" : "0", "buyValue" : "0", "lastUpdate": ""}
+            {"currencyCode" : "", "unit":"", "sellValue" : "", "buyValue" : "", "lastUpdate": ""}
           ]
         }
   ]

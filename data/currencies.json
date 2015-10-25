@@ -1,0 +1,19 @@
+{ "currencies":
+  [
+    {"isoCode":"SAR", "frenchName":"Riyal Saoudien", "englishName": "Saudi Arabia Riyal"},
+    {"isoCode":"CAD", "frenchName":"Dollar Canadien", "englishName": "Canada Dollar"},
+    {"isoCode":"DKK", "frenchName":"Couronne Danoise", "englishName": "Denmark Krone"},
+    {"isoCode":"AED", "frenchName":"Dirham Emirats Arabe Unis", "englishName": "United Arab Emirates Dirham"},
+    {"isoCode":"USD", "frenchName":"Dollar des Etats-Unis", "englishName": "United States Dollar"},
+    {"isoCode":"GBP", "frenchName":"Livre Sterling", "englishName": "British Pound"},
+    {"isoCode":"JPY", "frenchName":"Yen", "englishName": "Japan Yen"},
+    {"isoCode":"KWD", "frenchName":"Dinar Koweitien", "englishName": "Kuwait Dinar"},
+    {"isoCode":"NOK", "frenchName":"Couronne Norvégienne", "englishName": "Norway Krone"},
+    {"isoCode":"QAR", "frenchName":"Riyal Qatari", "englishName": "Qatar Riyal"},
+    {"isoCode":"SEK", "frenchName":"Couronne Suédoise", "englishName": "Sweden Krona"},
+    {"isoCode":"CHF", "frenchName":"Franc Suisse", "englishName": "Switzerland Franc"},
+    {"isoCode":"EUR", "frenchName":"Euro", "englishName": "Euro"},
+    {"isoCode":"BHD", "frenchName":"Dinar de Bahreïn", "englishName": "Bahrain Dinar"},
+    {"isoCode":"LYD", "frenchName":"Dinar Lybien", "englishName": "Libya Dinar"}
+  ]
+}

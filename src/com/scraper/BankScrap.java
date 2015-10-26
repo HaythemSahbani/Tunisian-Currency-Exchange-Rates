@@ -2,24 +2,24 @@ package com.scraper;
 
 import com.jaunt.*;
 import com.jaunt.component.Table;
-import com.util.JsonIO;
 
-import java.lang.reflect.Array;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 
 /**
  * Created by Haythem on 16/10/2015.
  */
-public class WebScrap {
+public class BankScrap {
+    public BankScrap(){}
+
     UserAgent userAgent = new UserAgent();
     String url = "" ;
     Element element;
     String lastUpdate;
+
+    public String getLastUpdate(){return this.lastUpdate;}
 
     public void scrapBTE() throws ResponseException, NotFound {
         String url = "http://www.bte.com.tn/?idart=8";//"http://www.bt.com.tn/change" ;
@@ -40,33 +40,19 @@ public class WebScrap {
         url = "http://www.biat.com.tn/biat/cours_devise.jsp";
         userAgent.visit(url);
 
-
         //find the lastUpdate of the currency table
         element = userAgent.doc.findEach("<p align=\"center\" class=\"couseDaysDevise\">");
         lastUpdate = new DateFinder().getDate(element.innerText());
 
-        // find first raw containing the titles of the columns
-        element = userAgent.doc.findEach("<tr class=\"orgbiatdev\">");
-        Elements tds = element.findEach("<td>");
-        for(Element td: tds) {
-            list.add(td.innerText());
-        }
-        // update the list
-        lists.add((ArrayList<String>) list.clone());
-        list.clear();
-
-
         // find the currencies data
+        Elements tds;
 
         element = userAgent.doc.findEach("<tr class=\"fontdevise1\">");
-        //System.out.println(element.innerHTML());
         for(Element tr : element.findEach("<tr class=\"fontdevise1\">")){
-
             tds = tr.findEach("<td>");
             for(Element tt : tds){
                 tt.findEvery("<td>");
                 list.add(tt.innerText());
-
             }
             lists.add((ArrayList<String>) list.clone());
             list.clear();
@@ -76,6 +62,84 @@ public class WebScrap {
         return lists;
 
     }
+
+    public ArrayList<ArrayList<String>> scrapBaraka() throws ResponseException, NotFound{
+        ArrayList<ArrayList<String>> lists = new ArrayList<ArrayList<String>>();
+        ArrayList<String> list = new ArrayList<String>();
+
+        url = "http://www.albarakabank.com.tn/CoursConvertisseurDevise.aspx";
+        userAgent.visit(url);
+
+        //find the lastUpdate of the currency table
+       element = userAgent.doc.findFirst("<span id=\"ctl00_ContentPlaceHolder1_Label9\">");
+        lastUpdate = new DateFinder().getDate(element.innerText());
+
+        // find the currencies data
+        element = userAgent.doc.findFirst("<div dir=\"ltr\">");
+        // find the table of currencies
+        element = element.findFirst("<table border=\"0\" width=\"100%\">");
+        for(Element tr : element.findEach("<tr class=\"FontCoursDevise\">")){
+            for(Element span : tr.findEvery("<span>")){
+            list.add(span.innerText());}
+
+            lists.add((ArrayList<String>) list.clone());
+            list.clear();
+        }
+        return lists;
+    }
+
+    public ArrayList<ArrayList<String>> scrapATB() throws ResponseException, NotFound{
+        ArrayList<ArrayList<String>> lists = new ArrayList<ArrayList<String>>();
+        ArrayList<String> list = new ArrayList<String>(5);
+
+        url = "http://www.atb.com.tn/convertisseur";
+        userAgent.visit(url);
+        //find the lastUpdate of the currency table
+        element = userAgent.doc.findFirst("<div class =\"txt\" >");
+        lastUpdate = new DateFinder().getATBDate(element.getText());
+
+
+        // find the currencies data
+        Elements currencyData;
+
+        element = userAgent.doc.findFirst("<table id=\"devises\">");
+        currencyData = element.findEach("<td class=\"devisesvalue Style1\">");
+        Elements currencyName = element.findEach("<td class=\"devises Style1\" width=\"39%\">");
+        List<Element> currencyNameList = currencyName.toList();
+
+        List<Element> currencyDataList = currencyData.toList();
+
+
+
+        for(int i = 0; i < currencyNameList.size(); i++ ){
+            list.add(currencyNameList.get(i).innerText());
+            for(int j = 0; j < 4; j++) {
+                list.add(currencyDataList.get(j).innerText());
+            }
+            lists.add((ArrayList<String>) list.clone());
+            list.clear();
+            currencyDataList.remove(0);
+            currencyDataList.remove(0);
+            currencyDataList.remove(0);
+            currencyDataList.remove(0);
+        }
+
+
+
+
+
+        return lists;
+    }
+
+
+
+
+
+
+
+
+
+
 
     public void scrapBNA()throws ResponseException, NotFound {
 
@@ -155,10 +219,12 @@ public class WebScrap {
 
 
     }
+
+
     public static void main(String[] args){
         try{
 
-            new WebScrap().scrapBIAT();
+            new BankScrap().scrapBIAT();
 
 
         }

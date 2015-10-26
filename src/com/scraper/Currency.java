@@ -4,8 +4,23 @@ package com.scraper;
  * Created by Haythem on 25/10/2015.
  */
 public class Currency {
+
+    private String name;
     private String isoCode;
     private String unit;
+    private String buyValue;
+    private String sellValue;
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
 
     public String getBuyValue() {
         return buyValue;
@@ -39,13 +54,13 @@ public class Currency {
         this.isoCode = isoCode;
     }
 
-    private String buyValue;
-    private String sellValue;
+
     Boolean englishName, frenchName;
 
     public Currency(){}
 
-    public Currency(String isoCode, String unit, String buyValue, String sellValue){
+    public Currency(String name, String isoCode, String unit, String buyValue, String sellValue){
+        this.name = name;
         this.isoCode = isoCode;
         this.buyValue = buyValue;
         this.sellValue = sellValue;
@@ -55,4 +70,11 @@ public class Currency {
     public String mapCurrencyCode(Boolean englishName){
         return this.isoCode;
     }
+
+    public String toString(){
+
+        return getName() + " " + getIsoCode() + " " + getUnit() + " " + getBuyValue() + " " + getSellValue();
+    }
 }
+
+

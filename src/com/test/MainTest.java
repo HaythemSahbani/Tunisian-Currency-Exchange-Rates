@@ -39,7 +39,7 @@ public class MainTest {
 
     public void getCurrency() throws NotFound, ResponseException {
         BankScrap bankScrap = new BankScrap();
-        ArrayList<ArrayList<String>> list = bankScrap.scrapStusid();
+        ArrayList<ArrayList<String>> list = bankScrap.scrapBH();
 
         Bank bank = new Bank("BIAT", "banque", bankScrap.getLastUpdate());
         for (ArrayList<String> lis : list ){

@@ -67,6 +67,14 @@ public class Currency {
         this.unit = unit;
     }
 
+    public Currency(String isoCode, String buyValue, String sellValue){
+
+        setIsoCode(isoCode);
+        setBuyValue(buyValue);
+        setSellValue(sellValue);
+
+    }
+
     public String mapCurrencyCode(Boolean englishName){
         return this.isoCode;
     }

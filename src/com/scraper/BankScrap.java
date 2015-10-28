@@ -2,234 +2,430 @@ package com.scraper;
 
 import com.jaunt.*;
 import com.jaunt.component.Table;
+import com.util.JsonIO;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
  * Created by Haythem on 16/10/2015.
  */
 public class BankScrap {
-    public BankScrap(){}
+
+    // get the url of the bank then call the scrap method depending on the bank name
+    public BankScrap() {
+        /*
+        // Read JSON from file through the JSONIO class
+        JsonIO jsonIO = new JsonIO();
+        // open the json file and read the banklist
+        JSONObject jsonObject = jsonIO.read(".\\data\\bankList.json");
+        // read the bank list.
+        JSONArray viableBankList = (JSONArray) jsonObject.get("viableBankList");
+
+        for (Object item: viableBankList){
+            JSONObject map = (JSONObject) item;
+            String code = map.get("bankCode").toString();
+            String url = map.get("currencyLink").toString();
+
+
+
+
+        }*/
+
+    }
 
     UserAgent userAgent = new UserAgent();
     String url = "" ;
     Element element;
     String lastUpdate;
 
+    private final ArrayList<ArrayList<String>> listOfList = new ArrayList<ArrayList<String>>();
+    private final ArrayList<String> list = new ArrayList<String>(3);
+
+    public void updateList(){
+        listOfList.add((ArrayList<String>) list.clone());
+        list.clear();
+    }
+    public  void removeItems(List list, int n ){
+        for (int i=0; i<n; i++) list.remove(0);
+    }
+
+
+
     public String getLastUpdate(){return this.lastUpdate;}
 
-    public void scrapBTE() throws ResponseException, NotFound {
-        String url = "http://www.bte.com.tn/?idart=8";//"http://www.bt.com.tn/change" ;
-
-            UserAgent userAgent = new UserAgent();
-            userAgent.visit(url);
-            //Table table = userAgent.doc.getTable("<table id=devise-table>");   //get Table component via search query
-            Element table1 = userAgent.doc.findFirst("<table align=\"center\" cellpadding=\"2\" cellspacing=\"2\">");
-            Elements tds = table1.findEach("<td|th>");
-            for(Element td: tds){System.out.println(td.innerText());}
-    }
-
-    public ArrayList<ArrayList<String>> scrapBIAT() throws ResponseException, NotFound {
-
-        ArrayList<ArrayList<String>> lists = new ArrayList<ArrayList<String>>();
-        ArrayList<String> list = new ArrayList<String>();
-
-        url = "http://www.biat.com.tn/biat/cours_devise.jsp";
-        userAgent.visit(url);
-
-        //find the lastUpdate of the currency table
-        element = userAgent.doc.findEach("<p align=\"center\" class=\"couseDaysDevise\">");
-        lastUpdate = new DateFinder().getDate(element.innerText());
-
-        // find the currencies data
-        Elements tds;
-
-        element = userAgent.doc.findEach("<tr class=\"fontdevise1\">");
-        for(Element tr : element.findEach("<tr class=\"fontdevise1\">")){
-            tds = tr.findEach("<td>");
-            for(Element tt : tds){
-                tt.findEvery("<td>");
-                list.add(tt.innerText());
-            }
-            lists.add((ArrayList<String>) list.clone());
-            list.clear();
-
-
-        }
-        return lists;
-
-    }
-
     public ArrayList<ArrayList<String>> scrapBaraka() throws ResponseException, NotFound{
-        ArrayList<ArrayList<String>> lists = new ArrayList<ArrayList<String>>();
-        ArrayList<String> list = new ArrayList<String>();
-
         url = "http://www.albarakabank.com.tn/CoursConvertisseurDevise.aspx";
         userAgent.visit(url);
 
         //find the lastUpdate of the currency table
-       element = userAgent.doc.findFirst("<span id=\"ctl00_ContentPlaceHolder1_Label9\">");
-        lastUpdate = new DateFinder().getDate(element.innerText());
-
-        // find the currencies data
-        element = userAgent.doc.findFirst("<div dir=\"ltr\">");
+        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<span id=\"ctl00_ContentPlaceHolder1_Label9\">").getText());
         // find the table of currencies
-        element = element.findFirst("<table border=\"0\" width=\"100%\">");
-        for(Element tr : element.findEach("<tr class=\"FontCoursDevise\">")){
-            for(Element span : tr.findEvery("<span>")){
-            list.add(span.innerText());}
+        List<Element> currencyDataList = userAgent.doc.
+                findFirst("<div dir=\"ltr\">").
+                findFirst("<table border=\"0\" width=\"100%\">").
+                findEvery("<tr class=\"FontCoursDevise\">").
+                findEvery("<span>").
+                toList();
 
-            lists.add((ArrayList<String>) list.clone());
-            list.clear();
+        int currencyListSize = currencyDataList.size();
+        for(int i = 0; i < currencyListSize/5; i++ ){
+            list.add(currencyDataList.get(1).innerText()); //get code
+            list.add(currencyDataList.get(3).innerText()); //get sell value
+            list.add(currencyDataList.get(4).innerText()); //get buy value
+            updateList();
+            removeItems(currencyDataList, 5);
         }
-        return lists;
+        return listOfList;
     }
 
     public ArrayList<ArrayList<String>> scrapATB() throws ResponseException, NotFound{
-        ArrayList<ArrayList<String>> lists = new ArrayList<ArrayList<String>>();
-        ArrayList<String> list = new ArrayList<String>(5);
-
         url = "http://www.atb.com.tn/convertisseur";
         userAgent.visit(url);
         //find the lastUpdate of the currency table
-        element = userAgent.doc.findFirst("<div class =\"txt\" >");
-        lastUpdate = new DateFinder().getATBDate(element.getText());
 
+        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<div class =\"txt\" >").getText());
+        // find the table of currencies
+        List<Element> currencyDataList = userAgent.doc.
+                findFirst("<table id=\"devises\">").
+                findEvery("<td class=\"devisesvalue Style1\">").
+                toList();
 
-        // find the currencies data
-        Elements currencyData;
-
-        element = userAgent.doc.findFirst("<table id=\"devises\">");
-        currencyData = element.findEach("<td class=\"devisesvalue Style1\">");
-        Elements currencyName = element.findEach("<td class=\"devises Style1\" width=\"39%\">");
-        List<Element> currencyNameList = currencyName.toList();
-
-        List<Element> currencyDataList = currencyData.toList();
-
-
-
-        for(int i = 0; i < currencyNameList.size(); i++ ){
-            list.add(currencyNameList.get(i).innerText());
-            for(int j = 0; j < 4; j++) {
-                list.add(currencyDataList.get(j).innerText());
-            }
-            lists.add((ArrayList<String>) list.clone());
-            list.clear();
-            currencyDataList.remove(0);
-            currencyDataList.remove(0);
-            currencyDataList.remove(0);
-            currencyDataList.remove(0);
+        int currencyListSize = currencyDataList.size();
+        for(int i = 0; i < currencyListSize/4; i++ ){
+            list.add(currencyDataList.get(0).innerText()); //get code
+            list.add(currencyDataList.get(2).innerText()); //get sell value
+            list.add(currencyDataList.get(3).innerText()); //get buy value
+            updateList();
+            removeItems(currencyDataList, 4);
         }
-
-
-
-
-
-        return lists;
+        return listOfList;
     }
 
+    public ArrayList<ArrayList<String>> scrapAttijari() throws ResponseException, NotFound{
+        url = "http://www.attijaribank.com.tn/Fr/Cours_de_change__59_205";
+        userAgent.visit(url);
+        //find the lastUpdate of the currency table
+        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<div class=\"center_page\">").findFirst("<b>").innerText());
+        // find the currencies data
 
+        List<Element> currencyDataList = userAgent.doc.findFirst("<div class=\"center_page\">").
+                findFirst("<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">").
+                findEvery("<p>").toList();
 
+        int currencyListSize = currencyDataList.size();
+        for(int i = 0; i < currencyListSize/6; i++ ){
+            list.add(currencyDataList.get(1).innerText()); //get code
+            list.add(currencyDataList.get(3).innerText()); //get sell value
+            list.add(currencyDataList.get(4).innerText()); //get buy value
+            updateList();
+            removeItems(currencyDataList, 6);
+        }
+        return listOfList;
+    }
 
+    // no data found
+    public ArrayList<ArrayList<String>> scrapBH() throws ResponseException, NotFound{
+        url = "http://www.bh.com.tn/devise.asp";
+        userAgent.visit(url);
+        //find the lastUpdate of the currency table
+        /*
+        element = userAgent.doc.findFirst("<div class=\"center_page\">");
+        lastUpdate = new DateFinder().getATBDate(element.findFirst("<b>").innerText());
+        // find the currencies data
+        Elements currencyData = element.findFirst("<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">").findEvery("<p>");
+        List<Element> currencyDataList = currencyData.toList();
+        for(int i = 0; i < 16; i++ ){
+            list.add(currencyDataList.get(1).innerText()); //get code
+            list.add(currencyDataList.get(3).innerText()); //get sell value
+            list.add(currencyDataList.get(4).innerText()); //get buy value
+            updateList();
+            removeItems(currencyDataList, 6);
+        }*/
+        return listOfList;
+    }
 
+    public ArrayList<ArrayList<String>> scrapBT() throws ResponseException, NotFound{
+        url = "http://www.bt.com.tn/change";
+        userAgent.visit(url);
+        //find the lastUpdate of the currency table
+        // find the currencies data
+        List<Element> currencyDataList = userAgent.doc.findFirst("<table class=\"table\" id=\"devise-table\">").findEvery("<td>").toList();
 
+        int currencyListSize = currencyDataList.size();
+        for(int i = 0; i < currencyListSize/5; i++ ){
+            list.add(currencyDataList.get(1).innerText()); //get code
+            list.add(currencyDataList.get(3).innerText()); //get sell value
+            list.add(currencyDataList.get(4).innerText()); //get buy value
+            updateList();
+            removeItems(currencyDataList, 5);
+        }
+        return listOfList;
+    }
 
+    public ArrayList<ArrayList<String>> scrapBTE() throws ResponseException, NotFound{
+        url = "http://www.bte.com.tn/?idart=8";
+        userAgent.visit(url);
+        //find the lastUpdate of the currency table
+        lastUpdate = new DateFinder().getATBDate(userAgent.doc.
+                findFirst("<table align=\"center\" cellpadding=\"2\" cellspacing=\"2\">").
+                findFirst("<tr>").
+                innerText());
 
+        // find the currencies data
+        List<Element> currencyDataList = userAgent.doc.
+                findFirst("<table align=\"center\" cellpadding=\"2\" cellspacing=\"2\">").
+                findEvery("<td>").
+                toList();
 
+        // currencyDataList.forEach(e -> System.out.println(e.innerText()));
+        int currencyListSize = currencyDataList.size();
+        for(int i = 0; i < currencyListSize/5; i++ ){
+            list.add(currencyDataList.get(1).innerText().replaceAll("&nbsp;", "")); //get code
+            list.add(currencyDataList.get(3).innerText().replaceAll("&nbsp;", "")); //get sell value
+            list.add(currencyDataList.get(4).innerText().replaceAll("&nbsp;", "")); //get buy value
+            updateList();
+            removeItems(currencyDataList, 5);
+        }
+        return listOfList;
+    }
 
+    public ArrayList<ArrayList<String>> scrapBIAT() throws ResponseException, NotFound {
+        url = "http://www.biat.com.tn/biat/cours_devise.jsp";
+        userAgent.visit(url);
 
-    public void scrapBNA()throws ResponseException, NotFound {
+        //find the lastUpdate of the currency table
+        lastUpdate = new DateFinder().getDate(userAgent.doc.findFirst("<p align=\"center\" class=\"couseDaysDevise\">").innerText());
 
-        Bank bna = new Bank("BNA", "Banque Nationale Agricole");
-        ArrayList<Currency> currencyArrayList = new ArrayList<Currency>();
+        // find the currencies data
+        List<Element> currencyDataList = userAgent.doc.
+                findEvery("<tr class=\"fontdevise1\">").
+                findEvery("<td>").
+                toList();
 
+        //currencyDataList.forEach(e -> System.out.println(e.innerText()));
+        int currencyListSize = currencyDataList.size();
+        for(int i = 0; i < currencyListSize/5; i++ ){
+            list.add(currencyDataList.get(1).innerText()); //get code
+            list.add(currencyDataList.get(3).innerText()); //get sell value
+            list.add(currencyDataList.get(4).innerText()); //get buy value
+            updateList();
+            removeItems(currencyDataList, 5);
+        }
+        return listOfList;
 
+    }
+
+    public ArrayList<ArrayList<String>> scrapBNA()throws ResponseException, NotFound {
         url = "http://www.bna.com.tn/devise.asp";
         userAgent.visit(url);
-        //find the lastUpdate
-        element = userAgent.doc.findEach("<TD class=textevert colSpan=7>");
 
-        //ArrayList<ArrayList<String>> table = new ArrayList<ArrayList<String>>();
-        LinkedHashMap<String, ArrayList<String>> table = new LinkedHashMap<String, ArrayList<String>>();
-        ArrayList<String> column = new ArrayList<String>();
+        //find the lastUpdate of the currency table
+        lastUpdate = new DateFinder().getDate(userAgent.doc.findFirst("<td class=\"textevert\" colspan=\"7\">").innerText());
 
-         ArrayList<String> firstRow = new ArrayList<String>() ;
-        firstRow.add("Monnaie");
-        firstRow.add("Unit&eacute;s");
-        firstRow.add("Achat");
-        firstRow.add("Vente");
-        table.put("Achat", firstRow);
-
-
-    lastUpdate = new DateFinder().getDate(element.innerText());
-        System.out.println(lastUpdate);
-
-        // find first raw containing the titles of the columns
-        Table htmlTable = userAgent.doc.getTable("<table width=\"100%\" border=\"0\" cellspacing=\"0\" bordercolor=\"#CCCCCC\" class=\"btn\" id=\"devise\">");
-        for(String el : table.keySet()){
-            //System.out.println(el);
-            //column.add(el);
-            Elements elements = htmlTable.getRow(1);
-
-            for(Element element : elements){
-                String str = element.innerText().replaceAll("\\s+", " ");
-                str = str.replaceAll("&nbsp;", "");
-                str = str.replaceAll(",", "");
-               System.out.println(str);
-
-                firstRow.add(str);
-
-
-
-               // table.put(el, str);
-
-                // System.out.println(table.size());
-
-
-
-            }
-            //System.out.println(table.values());
-
-            // column.clear();
-            //System.out.println("table size = "+ table.size());
-            //System.out.println("column size = "+ column.size());
-        }
-        /*for (ArrayList<String> col : table){
-            System.out.println(col.get(0));
-            for (String l : col){
-                System.out.println(l);
-
-            }
-        }*/
-
-
-
-        /*element = userAgent.doc.findFirst("<table width=\"100%\" border=\"0\" cellspacing=\"0\" bordercolor=\"#CCCCCC\" class=\"btn\" id=\"devise\">");
-
-        Elements tds = element.findEach("<td>");
-        for(Element td: tds){System.out.println(td.innerText());}
         // find the currencies data
-        element = userAgent.doc.findEach("<tr class=\"fontdevise1\">");
-        //System.out.println(element.innerHTML());
-        tds = element.findEach("<td>");
-        for(Element td: tds){System.out.println(td.innerText());}*/
+        List<Element> currencyDataList = userAgent.doc.
+                findEvery("<table width=\"100%\" border=\"0\" cellspacing=\"0\" bordercolor=\"#CCCCCC\" class=\"btn\" id=\"devise\">").
+                findEvery("<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">").
+                toList();
 
+       int currencyListSize = currencyDataList.size();
+        for(int i = 0; i < currencyListSize/4; i++ ){
+            list.add(currencyDataList.get(0).innerText().replaceAll("\\s+", " ")); //get name
+            list.add(currencyDataList.get(2).innerText().replaceAll("\\s+", " ")); //get sell value
+            list.add(currencyDataList.get(3).innerText().replaceAll("\\s+", " ")); //get buy value
+            updateList();
+            removeItems(currencyDataList, 4);
+        }
+        return listOfList;
+
+    }
+
+    public ArrayList<ArrayList<String>> scrapBTK() throws ResponseException, NotFound {
+        url = "http://www.btknet.com/site/fr/convertisseur.php?id_article=33";
+        userAgent.visit(url);
+
+        //find the lastUpdate of the currency table
+        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<td class=\"titre_publication\">").innerText());
+
+        // find the currencies data
+        List<Element> currencyDataList = userAgent.doc.
+                findEvery("<td class=\"ligne_devise_interne\">").
+                toList();
+        currencyDataList.addAll(userAgent.doc.
+                        findEvery("<td class=\"ligne_devise_interne2\">").
+                toList());
+
+        //currencyDataList.forEach(e -> System.out.println(e.innerText()));
+        int currencyListSize = currencyDataList.size();
+        for(int i = 0; i < currencyListSize/4; i++ ){
+            list.add(currencyDataList.get(0).innerText().replaceAll("\\s+", "").substring(0, 3)); //get code
+            list.add(currencyDataList.get(2).innerText()); //get sell value
+            list.add(currencyDataList.get(3).innerText()); //get buy value
+            updateList();
+            removeItems(currencyDataList, 4);
+        }
+        return listOfList;
+
+    }
+
+    //no data found
+    public ArrayList<ArrayList<String>> scrapBTL() throws ResponseException, NotFound {
+        url = "http://www.btl.com.tn/portal/page?_dad=portal&_schema=PORTAL&_pageid=37%2C391598";
+        userAgent.visit(url);
+
+        //find the lastUpdate of the currency table
+        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<td class=\"titre_publication\">").innerText());
+
+        // find the currencies data
+        List<Element> currencyDataList = userAgent.doc.
+                findEvery("<td class=\"ligne_devise_interne\">").
+                toList();
+        currencyDataList.addAll(userAgent.doc.
+                findEvery("<td class=\"ligne_devise_interne2\">").
+                toList());
+
+        //currencyDataList.forEach(e -> System.out.println(e.innerText()));
+        int currencyListSize = currencyDataList.size();
+        for(int i = 0; i < currencyListSize/4; i++ ){
+            list.add(currencyDataList.get(0).innerText().replaceAll("\\s+", "").substring(0, 3)); //get code
+            list.add(currencyDataList.get(2).innerText()); //get sell value
+            list.add(currencyDataList.get(3).innerText()); //get buy value
+            updateList();
+            removeItems(currencyDataList, 4);
+        }
+        return listOfList;
+
+    }
+
+    public ArrayList<ArrayList<String>> scrapZitouna() throws ResponseException, NotFound {
+        url = "http://www.banquezitouna.com/Fr/convertisseur-de-devise_64_103";
+        userAgent.visit(url);
+
+        //find the lastUpdate of the currency table
+        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<div class=\"caption_tabchange\">").innerText());
+
+        // find the currencies data
+        List<Element> currencyDataList = userAgent.doc.
+                findFirst("<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" class=\"tab_change\">").
+                findEvery("<td>").
+                toList();
+
+        //currencyDataList.forEach(e -> System.out.println(e.innerText()));
+        int currencyListSize = currencyDataList.size();
+        for(int i = 0; i < currencyListSize/4; i++ ){
+            list.add(currencyDataList.get(1).innerText()); //get code
+            list.add(currencyDataList.get(2).innerText()); //get sell value
+            list.add(currencyDataList.get(3).innerText()); //get buy value
+            updateList();
+            removeItems(currencyDataList, 4);
+        }
+        return listOfList;
+
+    }
+
+    public ArrayList<ArrayList<String>> scrapPoste() throws ResponseException, NotFound {
+        url = "http://www.poste.tn/change.php";
+        userAgent.visit(url);
+
+        //find the lastUpdate of the currency table
+        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<td height=\"30\" colspan=\"5\" class=\"tableau\">").innerText());
+
+        // find the currencies data
+        List<Element> currencyDataList = userAgent.doc.
+                findEvery("<td class=\"cel_contenu\">").
+                toList();
+
+        //currencyDataList.forEach(e -> System.out.println(e.innerText()));
+        int currencyListSize = currencyDataList.size();
+        for(int i = 0; i < currencyListSize/5; i++ ){
+            list.add(currencyDataList.get(1).innerText()); //get code
+            list.add(currencyDataList.get(3).innerText()); //get sell value
+            list.add(currencyDataList.get(4).innerText()); //get buy value
+            updateList();
+            removeItems(currencyDataList, 5);
+        }
+        return listOfList;
+
+    }
+
+    public ArrayList<ArrayList<String>> scrapQNB() throws ResponseException, NotFound {
+        url = "http://www.qnb.com.tn/en/financial-tools.html?view=financialtools";
+        userAgent.visit(url);
+
+        //find the lastUpdate of the currency table
+        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<table class=\"tabData\" id=\"currencyRates\">").findFirst("<th>").innerText());
+
+        // find the currencies data
+        List<Element> currencyDataList = userAgent.doc.
+                findEvery("<td class=\"bottomline\">").
+                toList();
+       int currencyListSize = currencyDataList.size();
+        for(int i = 0; i < currencyListSize/5; i++ ){
+            list.add(currencyDataList.get(1).innerText().replaceAll("&nbsp;", "").replaceAll("\\s+", "")); //get code
+            list.add(currencyDataList.get(3).innerText().replaceAll("&nbsp;", "")); //get sell value
+            list.add(currencyDataList.get(4).innerText().replaceAll("&nbsp;", "")); //get buy value
+            updateList();
+            removeItems(currencyDataList, 5);
+        }
+        return listOfList;
+
+    }
+
+    public ArrayList<ArrayList<String>> scrapSTB() throws ResponseException, NotFound {
+        url = "http://www.stb.com.tn/fr/site/bourse-change/cours-de-change";
+        userAgent.visit(url);
+
+        //find the lastUpdate of the currency table
+        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<td class =\"date-change\">").innerText());
+
+        // find the currencies data
+        List<Element> currencyDataList = userAgent.doc.
+                findFirst("<table class=\"cours-de-change\">").
+                findEvery("<td>").
+                toList();
+        int currencyListSize = currencyDataList.size();
+        for(int i = 0; i < currencyListSize/4; i++ ){
+            list.add(currencyDataList.get(0).innerText()); //get code
+            list.add(currencyDataList.get(1).innerText()); //get sell value
+            list.add(currencyDataList.get(2).innerText()); //get buy value
+            updateList();
+            removeItems(currencyDataList, 4);
+        }
+        return listOfList;
+
+    }
+
+    public ArrayList<ArrayList<String>> scrapStusid() throws ResponseException, NotFound {
+        url = "http://www.stusidbank.com.tn/site/publish/content/article.asp?id=78";
+        userAgent.visit(url);
+
+        //find the lastUpdate of the currency table
+        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<span class =\"texte6\">").innerText());
+
+        // find the currencies data
+        List<Element> currencyDataList = userAgent.doc.
+                findEvery("<td class=\"CelTab2-2\">").
+                toList();
+
+        int currencyListSize = currencyDataList.size();
+        for(int i = 0; i < currencyListSize/5; i++ ){
+            list.add(currencyDataList.get(1).innerText()); //get code
+            list.add(currencyDataList.get(4).innerText()); //get sell value
+            list.add(currencyDataList.get(3).innerText()); //get buy value
+            updateList();
+            removeItems(currencyDataList, 5);
+        }
+        return listOfList;
 
     }
 
 
-    public static void main(String[] args){
-        try{
-
-            new BankScrap().scrapBIAT();
-
-
-        }
-        catch(JauntException e){
-            System.err.println(e);
-        }
-    }
 }

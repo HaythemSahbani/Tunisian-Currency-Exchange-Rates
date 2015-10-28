@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * Created by Haythem on 20/10/2015.
  */
 public class MainTest {
-
+/*
     public void readBankList() throws IOException, ParseException {
         // Read JSON from file through the JSONIO class
         JsonIO jsonIO = new JsonIO();
@@ -35,18 +35,11 @@ public class MainTest {
             // map.get("name");
             System.out.println(map.get("name"));
         }
-    }
+    }*/
 
     public void getCurrency() throws NotFound, ResponseException {
         BankScrap bankScrap = new BankScrap();
-        ArrayList<ArrayList<String>> list = bankScrap.scrapATB();
-/*
-        for (ArrayList<String> lis : list ){
-            for (String s : lis){
-                System.out.print(s+"\t\t\t\t\t");
-            }
-            System.out.println();
-        }*/
+        ArrayList<ArrayList<String>> list = bankScrap.scrapStusid();
 
         Bank bank = new Bank("BIAT", "banque", bankScrap.getLastUpdate());
         for (ArrayList<String> lis : list ){
@@ -55,9 +48,8 @@ public class MainTest {
                     new Currency(
                             lis.get(0),
                             lis.get(1),
-                            lis.get(2),
-                            lis.get(3),
-                            lis.get(4)));
+                            lis.get(2)
+                            ));
         }
 
         System.out.println("last update:"+ bank.getLastUpdate());

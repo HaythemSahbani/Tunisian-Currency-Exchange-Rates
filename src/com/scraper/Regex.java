@@ -10,36 +10,31 @@ import java.util.regex.Pattern;
  */
 
 
-public class DateFinder {
-
+public class Regex {
 
     private Pattern pattern;
     private Matcher matcher;
 
-    private static final String DATE_PATTERN =
-            "(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[012])/((19|20)\\d\\d)";
+    // private static final String DATE_PATTERN = "(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[012])/((19|20)\\d\\d)";
 
-    private static final String DATE_PATTERN_ATB ="(\\d.*\\d)";
+    private static final String DATE_PATTERN ="(\\d.*\\d)";
     private static final String ONLY_LETTERS_PATTERN ="[^\\W|\\d]+";
+    private static final String BEGIN_WITH_CHARACTER ="^[a-zA-Z].*";
 
     private static final ArrayList<String> monthList = new ArrayList<String>(
             Arrays.asList("janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet", "aout", "septembre", "octobre", "novembre", "decembre"));
 
-    public DateFinder(){}
+    public Regex(){}
 
-    public String getDate(String date) {
+    public String getDate(String date){
+
         pattern = Pattern.compile(DATE_PATTERN);
         matcher = pattern.matcher(date);
-        if(matcher.find()){date = matcher.group();}
-        else{ date="no date found";}
-        return date;
-    }
-    public String getATBDate(String date){
-
-        pattern = Pattern.compile(DATE_PATTERN_ATB);
-        matcher = pattern.matcher(date);
+        // Find a date regex (DD-MM-YYYY or DD MONTH YYYY )
         if(matcher.find()){
             date = matcher.group();
+
+            // Extract a month string and change it with its respective number
             pattern = Pattern.compile(ONLY_LETTERS_PATTERN);
             matcher = pattern.matcher(date);
                 if(matcher.find()){
@@ -52,6 +47,14 @@ public class DateFinder {
         }
         else{ date="no date found";}
         return date;
+    }
+
+    public boolean beginWithChar(String str){
+        pattern = Pattern.compile(BEGIN_WITH_CHARACTER);
+        matcher = pattern.matcher(str);
+        if(matcher.find()){
+            return true;
+        }else return false;
     }
 
 }

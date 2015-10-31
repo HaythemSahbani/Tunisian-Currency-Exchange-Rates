@@ -1,17 +1,10 @@
 package com.scraper;
 
 import com.jaunt.*;
-import com.jaunt.component.Table;
-import com.util.JsonIO;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
 
-import java.io.IOException;
+
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 /**
@@ -47,13 +40,16 @@ public class BankScrap {
     UserAgent userAgent = new UserAgent();
     String url = "" ;
     String lastUpdate;
-
+    Regex regex = new Regex();
+    int columnNumber;
     int currencyListSize;
     private static ArrayList<Element> currencyDataList;
 
     private void setCurrencyListSize(){
         this.currencyListSize = currencyDataList.size();
     }
+
+    public String getLastUpdate(){return this.lastUpdate;}
 
     public ArrayList<ArrayList<String>> getListOfList() {
         return listOfList;
@@ -67,14 +63,32 @@ public class BankScrap {
         for (int i=0; i<n; i++) list.remove(0);
     }
 
-    public String getLastUpdate(){return this.lastUpdate;}
+    /**
+     * Gets the column number of the currency table.
+     * @param list
+     * @return
+     */
+    private int setColumnNumber(ArrayList<Element> list) {
+        for (int j = list.size() - 1; j >= 0; j--) {
+            if (regex.beginWithChar(list.get(j).innerText().replaceAll("&nbsp;", ""))) {
+                if (regex.beginWithChar(list.get(j - 1).innerText().replaceAll("&nbsp;", ""))) {
+                    columnNumber = list.size() - j + 1;
+                    break;
+                } else {
+                    columnNumber = list.size() - j;
+                    break;
+                }
+            }
+        }
+        return columnNumber;
+    }
 
     public ArrayList<ArrayList<String>> scrapBaraka() throws ResponseException, NotFound{
         url = "http://www.albarakabank.com.tn/CoursConvertisseurDevise.aspx";
         userAgent.visit(url);
 
         //find the lastUpdate of the currency table
-        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<span id=\"ctl00_ContentPlaceHolder1_Label9\">").getText());
+        lastUpdate = regex.getDate(userAgent.doc.findFirst("<span id=\"ctl00_ContentPlaceHolder1_Label9\">").getText());
         // find the table of currencies
         currencyDataList = (ArrayList<Element>) userAgent.doc.
                 findFirst("<div dir=\"ltr\">").
@@ -84,12 +98,14 @@ public class BankScrap {
                 toList();
 
         setCurrencyListSize();
-        for(int i = 0; i < currencyListSize/5; i++ ){
+
+        setColumnNumber(currencyDataList);
+        for(int i = 0; i < currencyListSize/columnNumber; i++ ){
             list.add(currencyDataList.get(1).innerText()); //get code
             list.add(currencyDataList.get(3).innerText()); //get sell value
             list.add(currencyDataList.get(4).innerText()); //get buy value
             updateList();
-            removeItems(currencyDataList, 5);
+            removeItems(currencyDataList, columnNumber);
         }
         return listOfList;
     }
@@ -99,7 +115,7 @@ public class BankScrap {
         userAgent.visit(url);
         //find the lastUpdate of the currency table
 
-        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<div class =\"txt\" >").getText());
+        lastUpdate = regex.getDate(userAgent.doc.findFirst("<div class =\"txt\" >").getText());
         // find the table of currencies
         currencyDataList = (ArrayList<Element>) userAgent.doc.
                 findFirst("<table id=\"devises\">").
@@ -107,12 +123,13 @@ public class BankScrap {
                 toList();
 
         setCurrencyListSize();
-        for(int i = 0; i < currencyListSize/4; i++ ){
+        setColumnNumber(currencyDataList);
+        for(int i = 0; i < currencyListSize/columnNumber; i++ ){
             list.add(currencyDataList.get(0).innerText()); //get code
             list.add(currencyDataList.get(2).innerText()); //get sell value
             list.add(currencyDataList.get(3).innerText()); //get buy value
             updateList();
-            removeItems(currencyDataList, 4);
+            removeItems(currencyDataList, columnNumber);
         }
         return listOfList;
     }
@@ -121,20 +138,23 @@ public class BankScrap {
         url = "http://www.attijaribank.com.tn/Fr/Cours_de_change__59_205";
         userAgent.visit(url);
         //find the lastUpdate of the currency table
-        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<div class=\"center_page\">").findFirst("<b>").innerText());
+        lastUpdate = regex.getDate(userAgent.doc.findFirst("<div class=\"center_page\">").findFirst("<b>").innerText());
         // find the currencies data
 
         currencyDataList = (ArrayList<Element>) userAgent.doc.findFirst("<div class=\"center_page\">").
                 findFirst("<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"100%\">").
                 findEvery("<p>").toList();
 
+        // currencyDataList.forEach(e -> System.out.println(e.innerText()));
+
         setCurrencyListSize();
-        for(int i = 0; i < currencyListSize/6; i++ ){
+        setColumnNumber(currencyDataList);
+        for(int i = 0; i < currencyListSize/columnNumber; i++ ){
             list.add(currencyDataList.get(1).innerText()); //get code
             list.add(currencyDataList.get(3).innerText()); //get sell value
             list.add(currencyDataList.get(4).innerText()); //get buy value
             updateList();
-            removeItems(currencyDataList, 6);
+            removeItems(currencyDataList, columnNumber);
         }
         return listOfList;
     }
@@ -148,7 +168,7 @@ public class BankScrap {
         //find the lastUpdate of the currency table
 
 
-        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findEvery("<p>").innerText());
+        lastUpdate = regex.getDate(userAgent.doc.findEvery("<p>").innerText());
         // find the currencies data
         currencyDataList = (ArrayList<Element>) userAgent.doc.
                 findEvery("<table class=\"CorpsDeTexte\">").
@@ -156,14 +176,15 @@ public class BankScrap {
                 findEvery("<tr>").
                 findEvery("<td>").
                 toList();
-        removeItems(currencyDataList, 4); // remove the table headers
         setCurrencyListSize();
-       for(int i = 0; i < currencyListSize/4; i++ ){
+        setColumnNumber(currencyDataList);
+        removeItems(currencyDataList, columnNumber); // remove the table headers
+        for(int i = 0; i < currencyListSize/columnNumber; i++ ){
             list.add(currencyDataList.get(0).innerText().replaceAll("&nbsp;", "").replaceAll("\\s+", " ").substring(0,3)); //get code
             list.add(currencyDataList.get(3).innerText().replaceAll("&nbsp;", "")); //get sell value
             list.add(currencyDataList.get(2).innerText().replaceAll("&nbsp;", "")); //get buy value
             updateList();
-            removeItems(currencyDataList, 4);
+            removeItems(currencyDataList, columnNumber);
         }
         return listOfList;
     }
@@ -176,12 +197,13 @@ public class BankScrap {
         currencyDataList = (ArrayList<Element>) userAgent.doc.findFirst("<table class=\"table\" id=\"devise-table\">").findEvery("<td>").toList();
 
         setCurrencyListSize();
-        for(int i = 0; i < currencyListSize/5; i++ ){
+        setColumnNumber(currencyDataList);
+        for(int i = 0; i < currencyListSize/columnNumber; i++ ){
             list.add(currencyDataList.get(1).innerText()); //get code
             list.add(currencyDataList.get(3).innerText()); //get sell value
             list.add(currencyDataList.get(4).innerText()); //get buy value
             updateList();
-            removeItems(currencyDataList, 5);
+            removeItems(currencyDataList, columnNumber);
         }
         return listOfList;
     }
@@ -190,7 +212,7 @@ public class BankScrap {
         url = "http://www.bte.com.tn/?idart=8";
         userAgent.visit(url);
         //find the lastUpdate of the currency table
-        lastUpdate = new DateFinder().getATBDate(userAgent.doc.
+        lastUpdate = regex.getDate(userAgent.doc.
                 findFirst("<table align=\"center\" cellpadding=\"2\" cellspacing=\"2\">").
                 findFirst("<tr>").
                 innerText());
@@ -203,12 +225,13 @@ public class BankScrap {
 
         // currencyDataList.forEach(e -> System.out.println(e.innerText()));
         setCurrencyListSize();
-        for(int i = 0; i < currencyListSize/5; i++ ){
+        setColumnNumber(currencyDataList);
+        for(int i = 0; i < currencyListSize/columnNumber; i++ ){
             list.add(currencyDataList.get(1).innerText().replaceAll("&nbsp;", "")); //get code
             list.add(currencyDataList.get(3).innerText().replaceAll("&nbsp;", "")); //get sell value
             list.add(currencyDataList.get(4).innerText().replaceAll("&nbsp;", "")); //get buy value
             updateList();
-            removeItems(currencyDataList, 5);
+            removeItems(currencyDataList, columnNumber);
         }
         return listOfList;
     }
@@ -218,8 +241,7 @@ public class BankScrap {
         userAgent.visit(url);
 
         //find the lastUpdate of the currency table
-        lastUpdate = new DateFinder().getDate(userAgent.doc.findFirst("<p align=\"center\" class=\"couseDaysDevise\">").innerText());
-
+        lastUpdate = regex.getDate(userAgent.doc.findFirst("<p align=\"center\" class=\"couseDaysDevise\">").innerText());
         // find the currencies data
         currencyDataList = (ArrayList<Element>) userAgent.doc.
                 findEvery("<tr class=\"fontdevise1\">").
@@ -228,12 +250,13 @@ public class BankScrap {
 
         //currencyDataList.forEach(e -> System.out.println(e.innerText()));
         setCurrencyListSize();
-        for(int i = 0; i < currencyListSize/5; i++ ){
+        setColumnNumber(currencyDataList);
+        for(int i = 0; i < currencyListSize/columnNumber; i++ ){
             list.add(currencyDataList.get(1).innerText()); //get code
             list.add(currencyDataList.get(3).innerText()); //get sell value
             list.add(currencyDataList.get(4).innerText()); //get buy value
             updateList();
-            removeItems(currencyDataList, 5);
+            removeItems(currencyDataList, columnNumber);
         }
         return listOfList;
 
@@ -244,7 +267,7 @@ public class BankScrap {
         userAgent.visit(url);
 
         //find the lastUpdate of the currency table
-        lastUpdate = new DateFinder().getDate(userAgent.doc.findFirst("<td class=\"textevert\" colspan=\"7\">").innerText());
+        lastUpdate = regex.getDate(userAgent.doc.findFirst("<td class=\"textevert\" colspan=\"7\">").innerText());
 
         // find the currencies data
         currencyDataList = (ArrayList<Element>) userAgent.doc.
@@ -253,12 +276,13 @@ public class BankScrap {
                 toList();
 
         setCurrencyListSize();
-        for(int i = 0; i < currencyListSize/4; i++ ){
+        setColumnNumber(currencyDataList);
+        for(int i = 0; i < currencyListSize/columnNumber; i++ ){
             list.add(currencyDataList.get(0).innerText().replaceAll("\\s+", " ")); //get name
             list.add(currencyDataList.get(2).innerText().replaceAll("\\s+", " ")); //get sell value
             list.add(currencyDataList.get(3).innerText().replaceAll("\\s+", " ")); //get buy value
             updateList();
-            removeItems(currencyDataList, 4);
+            removeItems(currencyDataList, columnNumber);
         }
         return listOfList;
 
@@ -269,7 +293,7 @@ public class BankScrap {
         userAgent.visit(url);
 
         //find the lastUpdate of the currency table
-        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<td class=\"titre_publication\">").innerText());
+        lastUpdate = regex.getDate(userAgent.doc.findFirst("<td class=\"titre_publication\">").innerText());
 
         // find the currencies data
 
@@ -281,12 +305,13 @@ public class BankScrap {
                 toList());
 
         setCurrencyListSize();
-        for(int i = 0; i < currencyListSize/4; i++ ){
+        setColumnNumber(currencyDataList);
+        for(int i = 0; i < currencyListSize/columnNumber; i++ ){
             list.add(currencyDataList.get(0).innerText().replaceAll("\\s+", "").substring(0, 3)); //get code
             list.add(currencyDataList.get(2).innerText()); //get sell value
             list.add(currencyDataList.get(3).innerText()); //get buy value
             updateList();
-            removeItems(currencyDataList, 4);
+            removeItems(currencyDataList, columnNumber);
         }
         return listOfList;
 
@@ -298,7 +323,7 @@ public class BankScrap {
         userAgent.visit(url);
 
         //find the lastUpdate of the currency table
-        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<td class=\"titre_publication\">").innerText());
+        lastUpdate = regex.getDate(userAgent.doc.findFirst("<td class=\"titre_publication\">").innerText());
 
         // find the currencies data
         currencyDataList = (ArrayList<Element>) userAgent.doc.
@@ -310,12 +335,13 @@ public class BankScrap {
 
         //currencyDataList.forEach(e -> System.out.println(e.innerText()));
         setCurrencyListSize();
-        for(int i = 0; i < currencyListSize/4; i++ ){
+        setColumnNumber(currencyDataList);
+        for(int i = 0; i < currencyListSize/columnNumber; i++ ){
             list.add(currencyDataList.get(0).innerText().replaceAll("\\s+", "").substring(0, 3)); //get code
             list.add(currencyDataList.get(2).innerText()); //get sell value
             list.add(currencyDataList.get(3).innerText()); //get buy value
             updateList();
-            removeItems(currencyDataList, 4);
+            removeItems(currencyDataList, columnNumber);
         }
         return listOfList;
 
@@ -326,7 +352,7 @@ public class BankScrap {
         userAgent.visit(url);
 
         //find the lastUpdate of the currency table
-        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<div class=\"caption_tabchange\">").innerText());
+        lastUpdate = regex.getDate(userAgent.doc.findFirst("<div class=\"caption_tabchange\">").innerText());
 
         // find the currencies data
         currencyDataList = (ArrayList<Element>) userAgent.doc.
@@ -336,12 +362,13 @@ public class BankScrap {
 
         //currencyDataList.forEach(e -> System.out.println(e.innerText()));
         setCurrencyListSize();
-        for(int i = 0; i < currencyListSize/4; i++ ){
+        setColumnNumber(currencyDataList);
+        for(int i = 0; i < currencyListSize/columnNumber; i++ ){
             list.add(currencyDataList.get(1).innerText()); //get code
             list.add(currencyDataList.get(2).innerText()); //get sell value
             list.add(currencyDataList.get(3).innerText()); //get buy value
             updateList();
-            removeItems(currencyDataList, 4);
+            removeItems(currencyDataList, columnNumber);
         }
         return listOfList;
 
@@ -352,7 +379,7 @@ public class BankScrap {
         userAgent.visit(url);
 
         //find the lastUpdate of the currency table
-        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<td height=\"30\" colspan=\"5\" class=\"tableau\">").innerText());
+        lastUpdate = regex.getDate(userAgent.doc.findFirst("<td height=\"30\" colspan=\"5\" class=\"tableau\">").innerText());
 
         // find the currencies data
         currencyDataList = (ArrayList<Element>) userAgent.doc.
@@ -361,12 +388,13 @@ public class BankScrap {
 
         //currencyDataList.forEach(e -> System.out.println(e.innerText()));
         setCurrencyListSize();
-        for(int i = 0; i < currencyListSize/5; i++ ){
+        setColumnNumber(currencyDataList);
+        for(int i = 0; i < currencyListSize/columnNumber; i++ ){
             list.add(currencyDataList.get(1).innerText()); //get code
             list.add(currencyDataList.get(3).innerText()); //get sell value
             list.add(currencyDataList.get(4).innerText()); //get buy value
             updateList();
-            removeItems(currencyDataList, 5);
+            removeItems(currencyDataList, columnNumber);
         }
         return listOfList;
 
@@ -377,19 +405,20 @@ public class BankScrap {
         userAgent.visit(url);
 
         //find the lastUpdate of the currency table
-        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<table class=\"tabData\" id=\"currencyRates\">").findFirst("<th>").innerText());
+        lastUpdate = regex.getDate(userAgent.doc.findFirst("<table class=\"tabData\" id=\"currencyRates\">").findFirst("<th>").innerText());
 
         // find the currencies data
         currencyDataList = (ArrayList<Element>) userAgent.doc.
                 findEvery("<td class=\"bottomline\">").
                 toList();
         setCurrencyListSize();
-        for(int i = 0; i < currencyListSize/5; i++ ){
+        setColumnNumber(currencyDataList);
+        for(int i = 0; i < currencyListSize/columnNumber; i++ ){
             list.add(currencyDataList.get(1).innerText().replaceAll("&nbsp;", "").replaceAll("\\s+", "")); //get code
             list.add(currencyDataList.get(3).innerText().replaceAll("&nbsp;", "")); //get sell value
             list.add(currencyDataList.get(4).innerText().replaceAll("&nbsp;", "")); //get buy value
             updateList();
-            removeItems(currencyDataList, 5);
+            removeItems(currencyDataList, columnNumber);
         }
         return listOfList;
 
@@ -400,7 +429,7 @@ public class BankScrap {
         userAgent.visit(url);
 
         //find the lastUpdate of the currency table
-        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<td class =\"date-change\">").innerText());
+        lastUpdate = regex.getDate(userAgent.doc.findFirst("<td class =\"date-change\">").innerText());
 
         // find the currencies data
         currencyDataList = (ArrayList<Element>) userAgent.doc.
@@ -408,12 +437,13 @@ public class BankScrap {
                 findEvery("<td>").
                 toList();
         setCurrencyListSize();
-        for(int i = 0; i < currencyListSize/4; i++ ){
+        setColumnNumber(currencyDataList);
+        for(int i = 0; i < currencyListSize/columnNumber; i++ ){
             list.add(currencyDataList.get(0).innerText()); //get code
             list.add(currencyDataList.get(1).innerText()); //get sell value
             list.add(currencyDataList.get(2).innerText()); //get buy value
             updateList();
-            removeItems(currencyDataList, 4);
+            removeItems(currencyDataList, columnNumber);
         }
         return listOfList;
 
@@ -424,7 +454,7 @@ public class BankScrap {
         userAgent.visit(url);
 
         //find the lastUpdate of the currency table
-        lastUpdate = new DateFinder().getATBDate(userAgent.doc.findFirst("<span class =\"texte6\">").innerText());
+        lastUpdate = regex.getDate(userAgent.doc.findFirst("<span class =\"texte6\">").innerText());
 
         // find the currencies data
         currencyDataList = (ArrayList<Element>) userAgent.doc.
@@ -432,12 +462,13 @@ public class BankScrap {
                 toList();
 
         setCurrencyListSize();
-        for(int i = 0; i < currencyListSize/5; i++ ){
+        setColumnNumber(currencyDataList);
+        for(int i = 0; i < currencyListSize/columnNumber; i++ ){
             list.add(currencyDataList.get(1).innerText()); //get code
             list.add(currencyDataList.get(4).innerText()); //get sell value
             list.add(currencyDataList.get(3).innerText()); //get buy value
             updateList();
-            removeItems(currencyDataList, 5);
+            removeItems(currencyDataList, columnNumber);
         }
         return listOfList;
 

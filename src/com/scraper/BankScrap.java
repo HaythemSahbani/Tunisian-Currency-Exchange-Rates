@@ -41,7 +41,8 @@ public class BankScrap {
                 notFound.printStackTrace();
             }
     });
-
+        // System.out.println(bankList.get(5).getCode() + "    "+ bankList.get(5).getUrl());
+          //   scrap(bankList.get(5));
         for (Bank bank : bankList) {
             scrap(bank);
         }
@@ -152,7 +153,7 @@ public class BankScrap {
                         false,
                         false);
                 break;
-            case "BH": // add the substring to the code getter. && .replaceAll("&nbsp;", ""))
+            case "BH": // add the substring to the code getter. && .replaceAll("&nbsp;", "")) // Get the three first letters in the codeIndex
                 userAgent.visit("http://www.bh.com.tn"); // to avoid a security issue with the bank server
                 userAgent.visit(bank.getUrl());
                 scrapBank(bank,
@@ -176,7 +177,7 @@ public class BankScrap {
                 scrapBank(bank,
                         "no data",
                         userAgent.doc.
-                                findFirst("<table class=\"table\" id=\"devise-table\">").
+                                findFirst("<table id=\"devise-table\">").
                                 findEvery("<td>").
                                 toList(),
                         1,
@@ -187,14 +188,16 @@ public class BankScrap {
                 break;
             case "BTE": //.replaceAll("&nbsp;", "").replaceAll("\\s+", "")));
                 userAgent.visit(bank.getUrl());
+
                 scrapBank(bank,
                         regex.getDate(userAgent.doc.
                                 findFirst("<table>").
-                                findFirst("<tr>").
+                                findEvery("<th>").
+                                getElement(1). // get the second <th> containing the date data
                                 innerText()),
                         userAgent.doc.
                                 findFirst("<table>").
-                                findEvery("<td>").
+                                findEvery("<td class = \"bottomline\">").
                                 toList(),
                         1,
                         3,
@@ -218,7 +221,7 @@ public class BankScrap {
                         false,
                         false);
                 break;
-            case "BNA": // .replaceAll("\\s+", ""));
+            case "BNA": // .replaceAll("\\s+", "")); && map the currency name to its code
                 // add removeItems(currencyDataList, 1);
                 userAgent.visit(bank.getUrl());
                 scrapBank(bank,
@@ -236,7 +239,7 @@ public class BankScrap {
                         true,
                         true);
                 break;
-            case "BTK": //.replaceAll("\\s+", "")));
+            case "BTK": //.replaceAll("\\s+", ""))); // get the three first letters of the codeIndex
                 userAgent.visit(bank.getUrl());
                 userAgent.doc.
                         findEvery("<td class=\"ligne_devise_interne2\">").
@@ -379,6 +382,7 @@ public class BankScrap {
 
         setCurrencyListSize();
         setColumnNumber(currencyDataList);
+        // currencyDataList.forEach(e -> System.out.println(e));
         for (int i = 0; i < currencyListSize / columnNumber; i++) {
             list.add(currencyDataList.get(codeIndex));      //get code
             list.add(currencyDataList.get(buyValueIndex));  //get buy value

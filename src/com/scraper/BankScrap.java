@@ -28,7 +28,7 @@ public class BankScrap {
 
 
     // get the url of the bank then call the scrap method depending on the bank name
-    public BankScrap() throws ResponseException, NotFound, IOException {
+    public BankScrap() throws ResponseException, NotFound, IOException, InterruptedException {
         userAgent.openJSON(new File(".\\data\\bankList.json"));
         JNode bankJson = userAgent.json.findFirst("viableBankList");
         userAgent.openJSON(new File(".\\data\\currencies.json"));
@@ -98,11 +98,21 @@ public class BankScrap {
         return columnNumber;
     }
 
-    public void scrap(Bank bank) throws NotFound, ResponseException {
+    public void visit(UserAgent userAgent, String url) throws InterruptedException {
+        try{ userAgent.visit(url);
+    } catch (ResponseException e) {
+            System.out.println("Connection error sleeping 5 sec");
+            Thread.sleep(5000);
+            visit(userAgent, url);
 
+        }
+    }
+
+    public void scrap(Bank bank) throws NotFound, ResponseException, InterruptedException {
         switch (bank.getCode()) {
             case "Baraka":
-                userAgent.visit(bank.getUrl());
+
+                visit(userAgent, bank.getUrl());
                 scrapBank(bank,
                         regex.getDate(userAgent.doc.
                                 findFirst("<span id=\"ctl00_ContentPlaceHolder1_Label9\">").
@@ -118,9 +128,11 @@ public class BankScrap {
                         4,
                         false,
                         false);
+
+
                 break;
             case "ATB":
-                userAgent.visit(bank.getUrl());
+                visit(userAgent, bank.getUrl());
                 scrapBank(bank,
                         regex.getDate(userAgent.doc.
                                 findFirst("<div class=\"txt\">").
@@ -136,7 +148,7 @@ public class BankScrap {
                         false);
                 break;
             case "Attijari":
-                userAgent.visit(bank.getUrl());
+                visit(userAgent, bank.getUrl());
                 scrapBank(bank,
                         regex.getDate(userAgent.doc.
                                 findFirst("<div class=\"center_page\">").
@@ -173,7 +185,7 @@ public class BankScrap {
                         false);
                 break;
             case "BT": //replaceAll("\\s+", "")));
-                userAgent.visit(bank.getUrl());
+                visit(userAgent, bank.getUrl());
                 scrapBank(bank,
                         "no data",
                         userAgent.doc.
@@ -206,7 +218,7 @@ public class BankScrap {
                         false);
                 break;
             case "BIAT":
-                userAgent.visit(bank.getUrl());
+                visit(userAgent, bank.getUrl());
                 scrapBank(bank,
                         regex.getDate(userAgent.doc.
                                 findFirst("<p class=\"couseDaysDevise\">").
@@ -240,7 +252,7 @@ public class BankScrap {
                         true);
                 break;
             case "BTK": //.replaceAll("\\s+", ""))); // get the three first letters of the codeIndex
-                userAgent.visit(bank.getUrl());
+                visit(userAgent, bank.getUrl());
                 userAgent.doc.
                         findEvery("<td class=\"ligne_devise_interne2\">").
                         toList().
@@ -264,7 +276,7 @@ public class BankScrap {
                 System.out.println("+++++++++++++++ no data found +++++++++++++++");
                 break;
             case "Zitouna":
-                userAgent.visit(bank.getUrl());
+                visit(userAgent, bank.getUrl());
                 scrapBank(bank,
                         regex.getDate(userAgent.doc.
                                 findFirst("<div class=\"caption_tabchange\">").
@@ -280,7 +292,7 @@ public class BankScrap {
                         false);
                 break;
             case "Poste":
-                userAgent.visit(bank.getUrl());
+                visit(userAgent, bank.getUrl());
                 scrapBank(bank,
                         regex.getDate(userAgent.doc.
                                 findFirst("<td class=\"tableau\">").
@@ -295,7 +307,7 @@ public class BankScrap {
                         false);
                 break;
             case "QNB": //.replaceAll("&nbsp;", "")));
-                userAgent.visit(bank.getUrl());
+                visit(userAgent, bank.getUrl());
                 scrapBank(bank,
                         regex.getDate(userAgent.doc.
                                 findFirst("<table class=\"tabData\" id=\"currencyRates\">").
@@ -311,7 +323,7 @@ public class BankScrap {
                         false);
                 break;
             case "STB":
-                userAgent.visit(bank.getUrl());
+                visit(userAgent, bank.getUrl());
                 scrapBank(bank,
                         regex.getDate(userAgent.doc.
                                 findFirst("<td class =\"date-change\">").
@@ -327,7 +339,7 @@ public class BankScrap {
                         false);
                 break;
             case "Stusid":
-                userAgent.visit(bank.getUrl());
+                visit(userAgent, bank.getUrl());
                 scrapBank(bank,
                         regex.getDate(userAgent.doc.
                                 findFirst("<span class =\"texte6\">").
@@ -347,6 +359,60 @@ public class BankScrap {
         }
     }
 
+    public String mapToCode(String str){
+
+        switch (str){
+            case "RyalSaoudien":
+                str = "SAR";
+                break;
+            case "DollarCanadien":
+                str = "CAD";
+                break;
+            case "CouronneDanoise":
+                str = "DKK";
+                break;
+            case "DirhamdesE.A.U":
+                str = "AED";
+                break;
+            case "DollardesEtats-Unis":
+                str = "USD";
+                break;
+            case "LivreSterling":
+                str = "GBP";
+                break;
+            case "YenJaponais":
+                str = "JPY";
+                break;
+            case "DinarKoweitien":
+                str = "KWD";
+                break;
+            case "CouronneNorv�gienne":
+                str = "NOK";
+                break;
+            case "RyalQuatari":
+                str = "QAR";
+                break;
+            case "CouronneSu�doise":
+                str = "SEK";
+                break;
+            case "FrancSuisse":
+                str = "CHF";
+                break;
+            case "Euro":
+                str = "EUR";
+                break;
+            case "DinarBahra�n":
+                str = "BHD";
+                break;
+            case "DinarLybien":
+                str = "LYD";
+                break;
+            default:
+                break;
+        }
+
+        return str;
+    }
     public void scrapBank(Bank bank,
                           String lastUpdate,
                           List<Element> htmlElementsList,
@@ -384,7 +450,9 @@ public class BankScrap {
         setColumnNumber(currencyDataList);
         // currencyDataList.forEach(e -> System.out.println(e));
         for (int i = 0; i < currencyListSize / columnNumber; i++) {
-            list.add(currencyDataList.get(codeIndex));      //get code
+            if(currencyDataList.get(codeIndex).length()>3)
+                list.add(mapToCode(currencyDataList.get(codeIndex)).substring(0, 3));      //get code
+            else list.add(currencyDataList.get(codeIndex));      //get code
             list.add(currencyDataList.get(buyValueIndex));  //get buy value
             list.add(currencyDataList.get(sellValueIndex)); //get sell value
             updateList();

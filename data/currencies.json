@@ -2,7 +2,7 @@
   {
     "SAR" : {"unit":"10", "frenchName":"Riyal Saoudien", "englishName": "Saudi Arabia Riyal"},
     "CAD" : {"unit":"1", "frenchName":"Dollar Canadien", "englishName": "Canada Dollar"},
-    "DKK" : {"unit":"100", "frenchName":"Couronne Danois", "englishName": "Denmark Krone"},
+    "DKK" : {"unit":"100", "frenchName":"Couronne Danoise", "englishName": "Denmark Krone"},
     "AED" : {"unit":"10", "frenchName":"Dirham Emirats Arabe Unis", "englishName": "United Arab Emirates Dirham"},
     "USD" : {"unit":"1", "frenchName":"Dollar des Etats-Unis", "englishName": "United States Dollar"},
     "GBP" : {"unit":"1", "frenchName":"Livre Sterling", "englishName": "British Pound"},

@@ -37,28 +37,8 @@ public class MainTest {
         }
     }*/
 
-    public void getCurrency() throws NotFound, ResponseException {
+    public void getCurrency() throws NotFound, ResponseException, IOException {
         BankScrap bankScrap = new BankScrap();
-        ArrayList<ArrayList<String>> list = bankScrap.scrapBT();
-
-        Bank bank = new Bank("BIAT", "banque", bankScrap.getLastUpdate());
-        for (ArrayList<String> lis : list ){
-            //update the currency list
-            bank.getCurrencyList().add(
-                    new Currency(
-                            lis.get(0),
-                            lis.get(1),
-                            lis.get(2)
-                            ));
-        }
-
-        System.out.println("last update:"+ bank.getLastUpdate());
-        System.out.println("-------------------------------------");
-
-        for (Currency cur : bank.getCurrencyList()){
-            System.out.println(cur.toString());
-
-        }
 
 
     }

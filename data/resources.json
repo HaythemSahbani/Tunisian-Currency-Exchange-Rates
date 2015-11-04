@@ -8,9 +8,9 @@
 { "version":"" /** The date of computation **/,
   "resourceData":
   [ /** List of banks with the useful currencies data **/
-        {"bankCode" : "Baraka", "currencies" :
+        {"bankCode" : "Baraka", "lastUpdate": "", "currencies" :
           [
-            {"currencyCode" : "", "unit":"", "sellValue" : "", "buyValue" : "", "lastUpdate": ""}
+            {"currencyCode" : "", "sellValue" : "", "buyValue" : ""}
           ]
         }
   ]

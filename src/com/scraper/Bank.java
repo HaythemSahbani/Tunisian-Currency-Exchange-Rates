@@ -7,10 +7,19 @@ import java.util.ArrayList;
  */
 public class Bank {
 
-    private String code, name, lastUpdate;
+    private String code;
+    private String name;
+    private String lastUpdate;
+    private String url;
     private ArrayList<Currency> currencyList = new ArrayList<Currency>();
 
+    public String getUrl() {
+        return url;
+    }
 
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     public String getLastUpdate() {
         return lastUpdate;
@@ -45,16 +54,23 @@ public class Bank {
     }
 
 
-
+public Bank(){}
     public Bank(String code, String name, String lastUpdate){
         setCode(code);
         setName(name);
         setLastUpdate(lastUpdate);
     }
 
-    public Bank(String code, String name){
+    public Bank(String code, String url){
+        setCode(code);
+        setUrl(url);
+
+    }
+
+    public Bank(String code, String name, String lastUpdate, String url){
         setCode(code);
         setName(name);
-
+        setLastUpdate(lastUpdate);
+        setUrl(url);
     }
 }

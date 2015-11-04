@@ -3,6 +3,8 @@ package com.scraper;
 import com.jaunt.*;
 
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,28 +14,7 @@ import java.util.List;
  */
 public class BankScrap {
 
-    // get the url of the bank then call the scrap method depending on the bank name
-    public BankScrap() {
-        /*
-        // Read JSON from file through the JSONIO class
-        JsonIO jsonIO = new JsonIO();
-        // open the json file and read the banklist
-        JSONObject jsonObject = jsonIO.read(".\\data\\bankList.json");
-        // read the bank list.
-        JSONArray viableBankList = (JSONArray) jsonObject.get("viableBankList");
-
-        for (Object item: viableBankList){
-            JSONObject map = (JSONObject) item;
-            String code = map.get("bankCode").toString();
-            String url = map.get("currencyLink").toString();
-
-
-
-
-        }*/
-
-    }
-
+    ArrayList<Bank> bankList = new ArrayList<>();
     private final ArrayList<ArrayList<String>> listOfList = new ArrayList<>();
     private final ArrayList<String> list = new ArrayList<>(3);
 
@@ -44,6 +25,33 @@ public class BankScrap {
     int columnNumber;
     int currencyListSize;
     private static ArrayList<String> currencyDataList = new ArrayList<>();
+
+
+    // get the url of the bank then call the scrap method depending on the bank name
+    public BankScrap() throws ResponseException, NotFound, IOException {
+        userAgent.openJSON(new File(".\\data\\bankList.json"));
+        JNode bankJson = userAgent.json.findFirst("viableBankList");
+        userAgent.openJSON(new File(".\\data\\currencies.json"));
+        JNode currencyJson = userAgent.json.findFirst("currencies");
+
+        bankJson.forEach(node -> {
+            try {
+                bankList.add(new Bank(node.getName(), node.get("currencyLink").toString().replaceAll("\\\\", "")));
+            } catch (NotFound notFound) {
+                notFound.printStackTrace();
+            }
+    });
+
+        for (Bank bank : bankList) {
+            scrap(bank);
+        }
+
+
+
+    }
+
+
+
 
     private void setCurrencyListSize(){
         this.currencyListSize = currencyDataList.size();
@@ -89,6 +97,270 @@ public class BankScrap {
         return columnNumber;
     }
 
+    public void scrap(Bank bank) throws NotFound, ResponseException {
+
+        switch (bank.getCode()) {
+            case "Baraka":
+                userAgent.visit(bank.getUrl());
+                scrapBank(bank,
+                        regex.getDate(userAgent.doc.
+                                findFirst("<span id=\"ctl00_ContentPlaceHolder1_Label9\">").
+                                getText()),
+                        userAgent.doc.
+                                findFirst("<div dir=\"ltr\">").
+                                findFirst("<table border=\"0\" width=\"100%\">").
+                                findEvery("<tr class=\"FontCoursDevise\">").
+                                findEvery("<span>").
+                                toList(),
+                        1,
+                        3,
+                        4);
+                break;
+            case "ATB":
+                userAgent.visit(bank.getUrl());
+                scrapBank(bank,
+                        regex.getDate(userAgent.doc.
+                                findFirst("<div class=\"txt\">").
+                                getText()),
+                        userAgent.doc.
+                                findFirst("<table id=\"devises\">").
+                                findEvery("<td class=\"devisesvalue Style1\">").
+                                toList(),
+                        0,
+                        2,
+                        3);
+                break;
+            case "Attijari":
+                userAgent.visit(bank.getUrl());
+                scrapBank(bank,
+                        regex.getDate(userAgent.doc.
+                                findFirst("<div class=\"center_page\">").
+                                findFirst("<b>").
+                                innerText()),
+                        userAgent.doc.
+                                findFirst("<div class=\"center_page\">").
+                                findFirst("<table>").
+                                findEvery("<p>").
+                                toList(),
+                        1,
+                        3,
+                        4);
+                break;
+            case "BH":
+                userAgent.visit("http://www.bh.com.tn"); // to avoid a security issue with the bank server
+                userAgent.visit(bank.getUrl());
+                scrapBank(bank,
+                        regex.getDate(userAgent.doc.
+                                findEvery("<p>").
+                                innerText()),
+                        userAgent.doc.
+                                findEvery("<table class=\"CorpsDeTexte\">").
+                                getElement(2). // get the third table == containing the currency data.
+                                findEvery("<tr>").
+                                findEvery("<td>").
+                                toList(),
+                        0,
+                        2,
+                        3);
+                break;
+            case "BT":
+                userAgent.visit(bank.getUrl());
+                scrapBank(bank,
+                        "no data",
+                        userAgent.doc.
+                                findFirst("<table class=\"table\" id=\"devise-table\">").
+                                findEvery("<td>").
+                                toList(),
+                        1,
+                        3,
+                        4);
+                break;
+            case "BTE":
+                userAgent.visit(bank.getUrl());
+                scrapBank(bank,
+                        regex.getDate(userAgent.doc.
+                                findFirst("<table>").
+                                findFirst("<tr>").
+                                innerText()),
+                        userAgent.doc.
+                                findFirst("<table>").
+                                findEvery("<td>").
+                                toList(),
+                        1,
+                        3,
+                        4);
+                break;
+            case "BIAT":
+                userAgent.visit(bank.getUrl());
+                scrapBank(bank,
+                        regex.getDate(userAgent.doc.
+                                findFirst("<p class=\"couseDaysDevise\">").
+                                innerText()),
+                        userAgent.doc.
+                                findEvery("<tr class=\"fontdevise1\">").
+                                findEvery("<td>").
+                                toList(),
+                        1,
+                        3,
+                        4);
+                break;
+            case "BNA":
+                userAgent.visit(bank.getUrl());
+                scrapBank(bank,
+                        regex.getDate(
+                                userAgent.doc.
+                                        findFirst("<td class=\"textevert\">").
+                                        innerText()),
+                        userAgent.doc.
+                                findEvery("<table class=\"btn\" id=\"devise\">").
+                                findEvery("<table>").
+                                toList(),
+                        0,
+                        2,
+                        3);
+                break;
+            case "BTK":
+                userAgent.visit(bank.getUrl());
+                userAgent.doc.
+                        findEvery("<td class=\"ligne_devise_interne2\">").
+                        toList().forEach(e -> currencyDataList.add(e.innerText().replaceAll("\\s+", "")));
+                scrapBank(bank,
+                        regex.getDate(userAgent.doc.
+                                findFirst("<td class=\"titre_publication\">").
+                                innerText()),
+                        userAgent.doc.
+                                findEvery("<td class= \"ligne_devise_interne\">").
+                                toList(),
+                        0,
+                        2,
+                        3);
+                break;
+            case "Zitouna":
+                userAgent.visit(bank.getUrl());
+                scrapBank(bank,
+                        regex.getDate(userAgent.doc.
+                                findFirst("<div class=\"caption_tabchange\">").
+                                innerText()),
+                        userAgent.doc.
+                                findFirst("<table class=\"tab_change\">").
+                                findEvery("<td>").
+                                toList(),
+                        1,
+                        2,
+                        3);
+                break;
+            case "Poste":
+                userAgent.visit(bank.getUrl());
+                scrapBank(bank,
+                        regex.getDate(userAgent.doc.
+                                findFirst("<td class=\"tableau\">").
+                                innerText()),
+                        userAgent.doc.
+                                findEvery("<td class=\"cel_contenu\">").
+                                toList(),
+                        1,
+                        3,
+                        4);
+                break;
+            case "QNB":
+                userAgent.visit(bank.getUrl());
+                scrapBank(bank,
+                        regex.getDate(userAgent.doc.
+                                findFirst("<table class=\"tabData\" id=\"currencyRates\">").
+                                findFirst("<th>").
+                                innerText()),
+                        userAgent.doc.
+                                findEvery("<td class=\"bottomline\">").
+                                toList(),
+                        1,
+                        3,
+                        4);
+                break;
+            case "STB":
+                userAgent.visit(bank.getUrl());
+                scrapBank(bank,
+                        regex.getDate(userAgent.doc.
+                                findFirst("<td class =\"date-change\">").
+                                innerText()),
+                        userAgent.doc.
+                                findFirst("<table class=\"cours-de-change\">").
+                                findEvery("<td>").
+                                toList(),
+                        0,
+                        1,
+                        2);
+                break;
+            case "Stusid":
+                userAgent.visit(bank.getUrl());
+                scrapBank(bank,
+                        regex.getDate(userAgent.doc.
+                                findFirst("<span class =\"texte6\">").
+                                innerText()),
+                        userAgent.doc.
+                                findEvery("<td class=\"CelTab2-2\">").
+                                toList(),
+                        1,
+                        3,
+                        4);
+                break;
+            default:
+                System.out.println(" no bank data about " + bank.getCode());
+
+        }
+    }
+
+
+
+    public ArrayList<ArrayList<String>> scrapBank(Bank bank,
+                                                  String lastUpdate,
+                                                  List<Element> htmlElementsList,
+                                                  int codeIndex,
+                                                  int buyValueIndex,
+                                                  int sellValueIndex)
+            throws ResponseException, NotFound{
+
+
+        this.lastUpdate = lastUpdate;
+        //if(!bank.getLastUpdate().equals(lastUpdate) | lastUpdate.equals(null)){
+        htmlElementsList.forEach(element -> currencyDataList.add(element.innerText()));
+        System.out.println("Scraping "+ bank.getCode());
+        setCurrencyListSize();
+        setColumnNumber(currencyDataList);
+        for(int i = 0; i < currencyListSize/columnNumber; i++ ){
+            list.add(currencyDataList.get(codeIndex).replaceAll("&nbsp;", "").replaceAll("\\s+", "")); //get code
+            list.add(currencyDataList.get(buyValueIndex).replaceAll("&nbsp;", "").replaceAll("\\s+", "")); //get buy value
+            list.add(currencyDataList.get(sellValueIndex).replaceAll("&nbsp;", "").replaceAll("\\s+", "")); //get sell value
+            updateList();
+            removeItems(currencyDataList, columnNumber);
+        //}
+    }
+
+        for (ArrayList<String> lis : listOfList ){
+            //update the currency list
+            bank.getCurrencyList().add(
+                    new Currency(
+                            lis.get(0),
+                            lis.get(1),
+                            lis.get(2)
+                    ));
+        }
+
+        System.out.println("last update:"+ bank.getLastUpdate());
+        System.out.println("-------------------------------------");
+
+        for (Currency cur : bank.getCurrencyList()){
+            System.out.println(cur.toString());
+
+        }
+        listOfList.clear();
+
+
+        return listOfList;
+    }
+
+
+
+
     public ArrayList<ArrayList<String>> scrapBaraka() throws ResponseException, NotFound{
         url = "http://www.albarakabank.com.tn/CoursConvertisseurDevise.aspx";
         userAgent.visit(url);
@@ -104,11 +376,11 @@ public class BankScrap {
                 toList().forEach(e -> currencyDataList.add(e.innerText()));
 
         setCurrencyListSize();
-        System.out.println(setColumnNumber(currencyDataList));
+        setColumnNumber(currencyDataList);
         for(int i = 0; i < currencyListSize/columnNumber; i++ ){
             list.add(currencyDataList.get(1)); //get code
-            list.add(currencyDataList.get(4)); //get sell value
             list.add(currencyDataList.get(3)); //get buy value
+            list.add(currencyDataList.get(4)); //get sell value
             updateList();
             removeItems(currencyDataList, columnNumber);
         }
@@ -165,7 +437,6 @@ public class BankScrap {
         }
         return listOfList;
     }
-
 
     public ArrayList<ArrayList<String>> scrapBH() throws ResponseException, NotFound{
         userAgent.visit("http://www.bh.com.tn");
@@ -229,7 +500,7 @@ public class BankScrap {
 
         // find the currencies data
         userAgent.doc.
-                findFirst("<table align=\"center\" cellpadding=\"2\" cellspacing=\"2\">").
+                findFirst("<table >").
                 findEvery("<td>").
                 toList().
                 forEach(e -> currencyDataList.add(e.innerText().replaceAll("&nbsp;", "").replaceAll("\\s+", "")));

@@ -20,6 +20,7 @@ public class Regex {
     private static final String DATE_PATTERN ="(\\d.*\\d)";
     private static final String ONLY_LETTERS_PATTERN ="[^\\W|\\d]+";
     private static final String BEGIN_WITH_CHARACTER ="^[a-zA-Z].*";
+    private static final String FIND_FLOAT ="[0-9]*\\\\.?,?[0-9]+";
 
     private static final ArrayList<String> monthList = new ArrayList<String>(
             Arrays.asList("janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet", "aout", "septembre", "octobre", "novembre", "decembre"));
@@ -55,6 +56,15 @@ public class Regex {
         if(matcher.find()){
             return true;
         }else return false;
+    }
+
+    public String toFloat(String str){
+        pattern = Pattern.compile(FIND_FLOAT);
+        matcher = pattern.matcher(str);
+        if(matcher.find()){
+            return matcher.group();
+        }else
+            return str;
     }
 
 }

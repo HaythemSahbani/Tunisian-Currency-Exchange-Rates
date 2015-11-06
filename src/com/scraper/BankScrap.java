@@ -14,35 +14,44 @@ import java.util.List;
  */
 public class BankScrap {
 
+    public ArrayList<Bank> getBankList() {
+        return bankList;
+    }
+
+    public void setBankList(ArrayList<Bank> bankList) {
+        this.bankList = bankList;
+    }
+
     ArrayList<Bank> bankList = new ArrayList<>();
     private final ArrayList<ArrayList<String>> listOfList = new ArrayList<>();
     private final ArrayList<String> list = new ArrayList<>(3);
 
     UserAgent userAgent = new UserAgent();
-    String url = "" ;
     String lastUpdate;
     Regex regex = new Regex();
     int columnNumber;
     int currencyListSize;
     private static ArrayList<String> currencyDataList = new ArrayList<>();
+    int visitCounter = 0;
 
 
     // get the url of the bank then call the scrap method depending on the bank name
     public BankScrap() throws ResponseException, NotFound, IOException, InterruptedException {
         userAgent.openJSON(new File(".\\data\\bankList.json"));
+
         JNode bankJson = userAgent.json.findFirst("viableBankList");
-        userAgent.openJSON(new File(".\\data\\currencies.json"));
-        JNode currencyJson = userAgent.json.findFirst("currencies");
+//        userAgent.openJSON(new File(".\\data\\ressources.json"));
+  //      JNode resourcesJson = userAgent.json.findFirst("currencies");
 
         bankJson.forEach(node -> {
             try {
-                bankList.add(new Bank(node.getName(), node.get("currencyLink").toString().replaceAll("\\\\", "")));
+                bankList.add(new Bank(node.getName(), node.get("name").toString(), node.get("currencyLink").toString().replaceAll("\\\\", "")));
             } catch (NotFound notFound) {
                 notFound.printStackTrace();
             }
     });
         // System.out.println(bankList.get(5).getCode() + "    "+ bankList.get(5).getUrl());
-          //   scrap(bankList.get(5));
+        //     scrap(bankList.get(7));
         for (Bank bank : bankList) {
             scrap(bank);
         }
@@ -51,32 +60,12 @@ public class BankScrap {
 
     }
 
-
-
-
     private void setCurrencyListSize(){
         this.currencyListSize = currencyDataList.size();
     }
 
     public String getLastUpdate(){return this.lastUpdate;}
 
-    public ArrayList<ArrayList<String>> getListOfList() {
-        return listOfList;
-    }
-
-    private void updateList(){
-        listOfList.add((ArrayList<String>) list.clone());
-        list.clear();
-    }
-
-    /**
-     *
-     * @param list
-     * @param n
-     */
-    public  void removeItems(List list, int n ){
-        for (int i=0; i<n; i++) list.remove(0);
-    }
 
     /**
      * Gets the column number of the currency table.
@@ -99,13 +88,20 @@ public class BankScrap {
     }
 
     public void visit(UserAgent userAgent, String url) throws InterruptedException {
+
         try{ userAgent.visit(url);
-    } catch (ResponseException e) {
-            System.out.println("Connection error sleeping 5 sec");
+        } catch (ResponseException e) {
+            visitCounter++;
+            System.out.println("Connection error, sleeping 5 sec then trying again");
+            if (visitCounter == 5){ // avoid an infinite loop.
+                System.out.println("+++++++++ Bank server unavailable, URL: "+ url);
+                visitCounter = 0;
+                return;
+            }
             Thread.sleep(5000);
             visit(userAgent, url);
-
         }
+
     }
 
     public void scrap(Bank bank) throws NotFound, ResponseException, InterruptedException {
@@ -128,9 +124,8 @@ public class BankScrap {
                         4,
                         false,
                         false);
-
-
                 break;
+
             case "ATB":
                 visit(userAgent, bank.getUrl());
                 scrapBank(bank,
@@ -147,6 +142,7 @@ public class BankScrap {
                         false,
                         false);
                 break;
+
             case "Attijari":
                 visit(userAgent, bank.getUrl());
                 scrapBank(bank,
@@ -165,6 +161,7 @@ public class BankScrap {
                         false,
                         false);
                 break;
+
             case "BH": // add the substring to the code getter. && .replaceAll("&nbsp;", "")) // Get the three first letters in the codeIndex
                 userAgent.visit("http://www.bh.com.tn"); // to avoid a security issue with the bank server
                 userAgent.visit(bank.getUrl());
@@ -182,8 +179,9 @@ public class BankScrap {
                         2,
                         3,
                         true,
-                        false);
+                        true);
                 break;
+
             case "BT": //replaceAll("\\s+", "")));
                 visit(userAgent, bank.getUrl());
                 scrapBank(bank,
@@ -198,6 +196,7 @@ public class BankScrap {
                         true,
                         false);
                 break;
+
             case "BTE": //.replaceAll("&nbsp;", "").replaceAll("\\s+", "")));
                 userAgent.visit(bank.getUrl());
 
@@ -217,6 +216,7 @@ public class BankScrap {
                         true,
                         false);
                 break;
+
             case "BIAT":
                 visit(userAgent, bank.getUrl());
                 scrapBank(bank,
@@ -242,14 +242,20 @@ public class BankScrap {
                                         findFirst("<td class=\"textevert\">").
                                         innerText()),
                         userAgent.doc.
-                                findEvery("<table class=\"btn\" id=\"devise\">").
+                                findEvery("<table id=\"devise\">").
                                 findEvery("<table>").
-                                toList(),
+                                toList().
+                                subList(1,
+                                        userAgent.doc.
+                                                findEvery("<table class=\"btn\" id=\"devise\">").
+                                                findEvery("<table>").
+                                                toList().
+                                                size()),
                         0,
                         2,
                         3,
                         true,
-                        true);
+                        false);
                 break;
             case "BTK": //.replaceAll("\\s+", ""))); // get the three first letters of the codeIndex
                 visit(userAgent, bank.getUrl());
@@ -333,8 +339,8 @@ public class BankScrap {
                                 findEvery("<td>").
                                 toList(),
                         0,
-                        1,
                         2,
+                        1,
                         false,
                         false);
                 break;
@@ -417,16 +423,19 @@ public class BankScrap {
                           String lastUpdate,
                           List<Element> htmlElementsList,
                           int codeIndex,
-                          int buyValueIndex,
-                          int sellValueIndex,
+                          int buyIndex,
+                          int sellIndex,
                           boolean specialCharacters,
-                          boolean firstRow)
+                          boolean jumpFirstRow)
             throws ResponseException, NotFound {
 
         System.out.println("------------------------------------------------");
         System.out.println("Scraping " + bank.getCode() + " last update:" + lastUpdate);
         System.out.println("------------------------------------------------");
 
+
+        String code;
+        Float buy, sell;
 
         if (specialCharacters) {
             htmlElementsList.forEach(element -> currencyDataList.add(
@@ -442,28 +451,37 @@ public class BankScrap {
             ));
         }
 
-        if (firstRow) {
-            removeItems(currencyDataList, 1);
-        }
-
         setCurrencyListSize();
         setColumnNumber(currencyDataList);
-        // currencyDataList.forEach(e -> System.out.println(e));
-        for (int i = 0; i < currencyListSize / columnNumber; i++) {
+        int j = 0;
+
+        if (jumpFirstRow) {
+            codeIndex += columnNumber;
+            buyIndex += columnNumber;
+            sellIndex += columnNumber;
+            j += columnNumber;
+        }
+
+
+        for (int i = j; i < currencyListSize ; i += columnNumber) {
             if(currencyDataList.get(codeIndex).length()>3)
-                list.add(mapToCode(currencyDataList.get(codeIndex)).substring(0, 3));      //get code
-            else list.add(currencyDataList.get(codeIndex));      //get code
-            list.add(currencyDataList.get(buyValueIndex));  //get buy value
-            list.add(currencyDataList.get(sellValueIndex)); //get sell value
-            updateList();
-            removeItems(currencyDataList, columnNumber);
+                code = mapToCode(currencyDataList.get(codeIndex)).substring(0, 3); //get code
+            else code = currencyDataList.get(codeIndex);      //get code
 
-        }
-        for (ArrayList<String> lis : listOfList) {
-            System.out.println(" code: " + lis.get(0) + " Buy  " + lis.get(1) + " Sell  " + lis.get(2));
 
+
+            buy = Float.valueOf(regex.toFloat(currencyDataList.get(buyIndex)).replaceAll("[^\\d.]+|\\.(?!\\d)", ""));  //get buy value
+            sell = Float.valueOf(currencyDataList.get(sellIndex).replaceAll("[^\\d.]+|\\.(?!\\d)", "")); //get sell value
+            bank.getCurrencyList().add(new Currency(code, buy, sell));
+            codeIndex += columnNumber;
+            buyIndex += columnNumber;
+            sellIndex += columnNumber;
         }
-        listOfList.clear();
+        currencyDataList.clear();
+        bank.getCurrencyList().forEach(currency -> System.out.println(currency.toString()));
+
+
+
 
     }
 }

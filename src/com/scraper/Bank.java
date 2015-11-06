@@ -9,9 +9,9 @@ public class Bank {
 
     private String code;
     private String name;
-    private String lastUpdate;
+    private String updateTime;
     private String url;
-    private ArrayList<Currency> currencyList = new ArrayList<Currency>();
+    private ArrayList<Currency> currencyList = new ArrayList<>();
 
     public String getUrl() {
         return url;
@@ -21,12 +21,12 @@ public class Bank {
         this.url = url;
     }
 
-    public String getLastUpdate() {
-        return lastUpdate;
+    public String getUpdateTime() {
+        return updateTime;
     }
 
-    public void setLastUpdate(String lastUpdate) {
-        this.lastUpdate = lastUpdate;
+    public void setUpdateTime(String updateTime) {
+        this.updateTime = updateTime;
     }
 
     public String getCode() {
@@ -55,22 +55,19 @@ public class Bank {
 
 
 public Bank(){}
-    public Bank(String code, String name, String lastUpdate){
+
+
+    public Bank(String code, String name, String url){
         setCode(code);
         setName(name);
-        setLastUpdate(lastUpdate);
-    }
-
-    public Bank(String code, String url){
-        setCode(code);
         setUrl(url);
 
     }
 
-    public Bank(String code, String name, String lastUpdate, String url){
+    public Bank(String code, String name, String updateTime, String url){
         setCode(code);
         setName(name);
-        setLastUpdate(lastUpdate);
+        setUpdateTime(updateTime);
         setUrl(url);
     }
 }

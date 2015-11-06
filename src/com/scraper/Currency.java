@@ -8,8 +8,8 @@ public class Currency {
     private String name;
     private String isoCode;
     private String unit;
-    private String buyValue;
-    private String sellValue;
+    private Float buyValue;
+    private Float sellValue;
 
 
     public String getName() {
@@ -22,11 +22,11 @@ public class Currency {
 
 
 
-    public String getBuyValue() {
+    public Float getBuyValue() {
         return buyValue;
     }
 
-    public void setBuyValue(String buyValue) {
+    public void setBuyValue(Float buyValue) {
         this.buyValue = buyValue;
     }
 
@@ -38,11 +38,11 @@ public class Currency {
         this.unit = unit;
     }
 
-    public String getSellValue() {
+    public Float getSellValue() {
         return sellValue;
     }
 
-    public void setSellValue(String sellValue) {
+    public void setSellValue(Float sellValue) {
         this.sellValue = sellValue;
     }
 
@@ -54,12 +54,9 @@ public class Currency {
         this.isoCode = isoCode;
     }
 
-
-    Boolean englishName, frenchName;
-
     public Currency(){}
 
-    public Currency(String name, String isoCode, String unit, String buyValue, String sellValue){
+    public Currency(String name, String isoCode, String unit, Float buyValue, Float sellValue){
         this.name = name;
         this.isoCode = isoCode;
         this.buyValue = buyValue;
@@ -67,7 +64,7 @@ public class Currency {
         this.unit = unit;
     }
 
-    public Currency(String isoCode, String buyValue, String sellValue){
+    public Currency(String isoCode, Float buyValue, Float sellValue){
 
         setIsoCode(isoCode);
         setBuyValue(buyValue);
@@ -75,13 +72,9 @@ public class Currency {
 
     }
 
-    public String mapCurrencyCode(Boolean englishName){
-        return this.isoCode;
-    }
-
     public String toString(){
 
-        return getName() + " " + getIsoCode() + " " + getUnit() + " " + getBuyValue() + " " + getSellValue();
+        return  getIsoCode() + " " + getBuyValue() + " " + getSellValue();
     }
 }
 

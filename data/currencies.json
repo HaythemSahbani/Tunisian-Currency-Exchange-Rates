@@ -1,21 +1,80 @@
-{ "currencies":
-  {
-    "SAR" : {"unit":"10", "frenchName":"Riyal Saoudien", "englishName": "Saudi Arabia Riyal"},
-    "CAD" : {"unit":"1", "frenchName":"Dollar Canadien", "englishName": "Canada Dollar"},
-    "DKK" : {"unit":"100", "frenchName":"Couronne Danoise", "englishName": "Denmark Krone"},
-    "AED" : {"unit":"10", "frenchName":"Dirham Emirats Arabe Unis", "englishName": "United Arab Emirates Dirham"},
-    "USD" : {"unit":"1", "frenchName":"Dollar des Etats-Unis", "englishName": "United States Dollar"},
-    "GBP" : {"unit":"1", "frenchName":"Livre Sterling", "englishName": "British Pound"},
-    "JPY" : {"unit":"1000", "frenchName":"Yen", "englishName": "Japan Yen"},
-    "KWD" : {"unit":"1", "frenchName":"Dinar Koweitien", "englishName": "Kuwait Dinar"},
-    "NOK" : {"unit":"100", "frenchName":"Couronne Norvégienne", "englishName": "Norway Krone"},
-    "QAR" : {"unit":"10", "frenchName":"Riyal Qatari", "englishName": "Qatar Riyal"},
-    "SEK" : {"unit":"10", "frenchName":"Couronne Suédoise", "englishName": "Sweden Krona"},
-    "CHF" : {"unit":"10", "frenchName":"Franc Suisse", "englishName": "Switzerland Franc"},
-    "EUR" : {"unit":"1", "frenchName":"Euro", "englishName": "Euro"},
-    "BHD" : {"unit":"1", "frenchName":"Dinar de Bahreïn", "englishName": "Bahrain Dinar"},
-    "LYD" : {"unit":"1", "frenchName":"Dinar Lybien", "englishName": "Libya Dinar"}
+{
+    "SAR":{
+      "unit":"10",
+      "frenchName":"Riyal Saoudien",
+      "englishName": "Saudi Arabia Riyal"
+    },
+    "CAD" : {
+      "unit":"1",
+      "frenchName":"Dollar Canadien",
+      "englishName": "Canada Dollar"
+    },
+    "DKK" : {
+      "unit":"100",
+      "frenchName":"Couronne Danoise",
+      "englishName": "Denmark Krone"
+    },
+    "AED" : {
+      "unit":"10",
+      "frenchName":"Dirham Emirats Arabe Unis",
+      "englishName": "United Arab Emirates Dirham"
+    },
+    "USD" : {
+      "unit":"1",
+      "frenchName":"Dollar des Etats-Unis",
+      "englishName": "United States Dollar"
+    },
+    "GBP" : {
+      "unit":"1",
+      "frenchName":"Livre Sterling",
+      "englishName": "British Pound"
+    },
+    "JPY" : {
+      "unit":"1000",
+      "frenchName":"Yen",
+      "englishName": "Japan Yen"
+    },
+    "KWD" : {
+      "unit":"1",
+      "frenchName":"Dinar Koweitien",
+      "englishName": "Kuwait Dinar"
+    },
+    "NOK" : {
+      "unit":"100",
+      "frenchName":"Couronne Norvégienne",
+      "englishName": "Norway Krone"
+    },
+    "QAR" : {
+      "unit":"10",
+      "frenchName":"Riyal Qatari",
+      "englishName": "Qatar Riyal"
+    },
+    "SEK" : {
+      "unit":"10",
+      "frenchName":"Couronne Suédoise",
+      "englishName": "Sweden Krona"
+    },
+    "CHF" : {
+      "unit":"10",
+      "frenchName":"Franc Suisse",
+      "englishName": "Switzerland Franc"
+    },
+    "EUR" : {
+      "unit":"1",
+      "frenchName":"Euro",
+      "englishName": "Euro"
+    },
+    "BHD" : {
+      "unit":"1",
+      "frenchName":"Dinar de Bahreïn",
+      "englishName": "Bahrain Dinar"
+    },
+    "LYD" : {
+      "unit":"1",
+      "frenchName":"Dinar Lybien",
+      "englishName": "Libya Dinar"
+    }
   }
-}
+
 
 

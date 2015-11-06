@@ -25,6 +25,8 @@ public class Bank {
         return updateTime;
     }
 
+
+
     public void setUpdateTime(String updateTime) {
         this.updateTime = updateTime;
     }

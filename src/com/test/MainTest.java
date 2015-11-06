@@ -10,8 +10,8 @@ import com.scraper.WriteToResources;
 public class MainTest {
 
     public static void main(String[] args) throws Exception {
-        new BankScrap();
-       // new WriteToResources();
+       // new BankScrap();
+       new WriteToResources();
 
     }
 }

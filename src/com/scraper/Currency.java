@@ -6,8 +6,8 @@ package com.scraper;
 public class Currency {
 
     private String name;
-    private String isoCode;
-    private String unit;
+    private String code;
+    private int unit;
     private Float buyValue;
     private Float sellValue;
 
@@ -30,11 +30,11 @@ public class Currency {
         this.buyValue = buyValue;
     }
 
-    public String getUnit() {
+    public int getUnit() {
         return unit;
     }
 
-    public void setUnit(String unit) {
+    public void setUnit(int unit) {
         this.unit = unit;
     }
 
@@ -46,35 +46,45 @@ public class Currency {
         this.sellValue = sellValue;
     }
 
-    public String getIsoCode() {
-        return isoCode;
+    public String getCode() {
+        return code;
     }
 
-    public void setIsoCode(String isoCode) {
-        this.isoCode = isoCode;
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public Currency(){}
 
-    public Currency(String name, String isoCode, String unit, Float buyValue, Float sellValue){
+    public Currency(String name, String code, int unit, Float buyValue, Float sellValue){
         this.name = name;
-        this.isoCode = isoCode;
+        this.code = code;
         this.buyValue = buyValue;
         this.sellValue = sellValue;
         this.unit = unit;
     }
 
-    public Currency(String isoCode, Float buyValue, Float sellValue){
+    public Currency(String code, Float buyValue, Float sellValue){
 
-        setIsoCode(isoCode);
+        setCode(code);
         setBuyValue(buyValue);
         setSellValue(sellValue);
 
     }
 
+    public void setUnit(){
+        switch (this.getCode()){
+            case "USD": setUnit(1);
+                break;
+
+
+
+        }
+    }
+
     public String toString(){
 
-        return  getIsoCode() + " " + getBuyValue() + " " + getSellValue();
+        return  getCode() + " " + getBuyValue() + " " + getSellValue();
     }
 }
 

@@ -1,19 +1,62 @@
-{"viableBankList":
-    {
-      "Baraka": {"name":"Al Baraka", "currencyLink":"http://www.albarakabank.com.tn/CoursConvertisseurDevise.aspx"},
-      "ATB": {"name":"Arab Tunisian Bank", "currencyLink":"http://www.atb.com.tn/convertisseur"},
-      "Attijari": {"name":"Attijari bank", "currencyLink":"http://www.attijaribank.com.tn/Fr/Cours_de_change__59_205"},
-      "BH": {"name":"Banque d'Habitat", "currencyLink":"http://www.bh.com.tn/devise.asp"},
-      "BT": {"name":"Banque de Tunisie", "currencyLink":"http://www.bt.com.tn/change"},
-      "BTE": {"name":"Banque de Tunisie et des Emirats", "currencyLink":"http://www.bte.com.tn/?idart=8"},
-      "BIAT": {"name":"Banque Internationale Arabe de Tunisie", "currencyLink":"http://www.biat.com.tn/biat/cours_devise.jsp"},
-      "BNA": {"name":"Banque Nationale Agricole", "currencyLink":"http://www.bna.com.tn/devise.asp"},
-      "BTK": {"name":"Banque Tuniso-Koweitienne", "currencyLink":"http://www.btknet.com/site/fr/convertisseur.php?id_article=33"},
-      "BTL": {"name":"Banque Tuniso-Libyenne", "currencyLink":"http://www.btl.com.tn/portal/page?_dad=portal&_schema=PORTAL&_pageid=37%2C391598"},
-      "Zitouna": {"name":"Banque Zitouna", "currencyLink":"http://www.banquezitouna.com/Fr/convertisseur-de-devise_64_103"},
-      "Poste": {"name":"La Poste Tunisienne", "currencyLink":"http://www.poste.tn/change.php"},
-      "QNB": {"name":"Qatar National Bank", "currencyLink":"http://www.qnb.com.tn/en/financial-tools.html?view=financialtools"},
-      "STB": {"name":"Société Tunisienne de Banque", "currencyLink":"http://www.stb.com.tn/fr/site/bourse-change/cours-de-change/"},
-      "Stusid": {"name":"Stusid Bank", "currencyLink":"http://www.stusidbank.com.tn/site/publish/content/article.asp?id=78"}
-    }
+{
+  "Baraka":{
+    "name":"Al Baraka",
+    "currencyLink":"http://www.albarakabank.com.tn/CoursConvertisseurDevise.aspx"
+  },
+  "ATB":{
+    "name":"Arab Tunisian Bank",
+    "currencyLink":"http://www.atb.com.tn/convertisseur"
+  },
+  "Attijari":{
+    "name":"Attijari bank",
+    "currencyLink":"http://www.attijaribank.com.tn/Fr/Cours_de_change__59_205"
+  },
+  "BH":{
+    "name":"Banque d'Habitat",
+    "currencyLink":"http://www.bh.com.tn/devise.asp"
+  },
+  "BT":{
+    "name":"Banque de Tunisie",
+    "currencyLink":"http://www.bt.com.tn/change"
+  },
+  "BTE":{
+    "name":"Banque de Tunisie et des Emirats",
+    "currencyLink":"http://www.bte.com.tn/?idart=8"
+  },
+  "BIAT":{
+    "name":"Banque Internationale Arabe de Tunisie",
+    "currencyLink":"http://www.biat.com.tn/biat/cours_devise.jsp"
+  },
+  "BNA":{
+    "name":"Banque Nationale Agricole",
+    "currencyLink":"http://www.bna.com.tn/devise.asp"
+  },
+  "BTK":{
+    "name":"Banque Tuniso-Koweitienne",
+    "currencyLink":"http://www.btknet.com/site/fr/convertisseur.php?id_article=33"
+  },
+  "BTL":{
+    "name":"Banque Tuniso-Libyenne",
+    "currencyLink":"http://www.btl.com.tn/portal/page?_dad=portal&_schema=PORTAL&_pageid=37%2C391598"
+  },
+  "Zitouna":{
+    "name":"Banque Zitouna",
+    "currencyLink":"http://www.banquezitouna.com/Fr/convertisseur-de-devise_64_103"
+  },
+  "Poste":{
+    "name":"La Poste Tunisienne",
+    "currencyLink":"http://www.poste.tn/change.php"
+  },
+  "QNB":{
+    "name":"Qatar National Bank",
+    "currencyLink":"http://www.qnb.com.tn/en/financial-tools.html?view=financialtools"
+  },
+  "STB":{
+    "name":"Société Tunisienne de Banque",
+    "currencyLink":"http://www.stb.com.tn/fr/site/bourse-change/cours-de-change/"
+  },
+  "Stusid":{
+    "name":"Stusid Bank",
+    "currencyLink":"http://www.stusidbank.com.tn/site/publish/content/article.asp?id=78"
+  }
 }

@@ -24,9 +24,7 @@ public class BankScrap {
 
     ArrayList<Bank> bankList = new ArrayList<>();
 
-
     UserAgent userAgent = new UserAgent();
-    String lastUpdate;
     Regex regex = new Regex();
     int columnNumber;
     int currencyListSize;
@@ -34,38 +32,29 @@ public class BankScrap {
     int visitCounter = 0;
 
 
-    // get the url of the bank then call the scrap method depending on the bank name
-    public BankScrap() throws ResponseException, NotFound, IOException, InterruptedException {
-        JNode bankJson = userAgent.openJSON(new File(".\\data\\bankList.json"));
-        JNode resourcesJson = userAgent.openJSON(new File(".\\data\\resources.json"));
 
-
+    public void initBankList(String jsonFilePath) throws ResponseException, NotFound, IOException, InterruptedException{
+        JNode bankJson = userAgent.openJSON(new File(jsonFilePath));
         bankJson.forEach(node -> {
             try {
                 bankList.add(new Bank(
                         node.getName(),
                         node.get("name").toString(),
-                        resourcesJson.findFirst(node.getName()).get("lastUpdate").toString(),
                         node.get("currencyLink").toString().replaceAll("\\\\", "")));
             } catch (NotFound notFound) {
                 notFound.printStackTrace();
             }
-    });
-        // System.out.println(bankList.get(5).getCode() + "    "+ bankList.get(5).getUrl());
-             // scrap(bankList.get(14));
-        for (Bank bank : bankList) {
-            scrap(bank);
-        }
-
-
+        });
+    }
+    // get the url of the bank then call the scrap method depending on the bank name
+    public BankScrap() throws ResponseException, NotFound, IOException, InterruptedException {
 
     }
+
 
     private void setCurrencyListSize(){
         this.currencyListSize = currencyDataList.size();
     }
-
-    public String getLastUpdate(){return this.lastUpdate;}
 
 
     /**
@@ -284,9 +273,6 @@ public class BankScrap {
                             false);
                 }
                 break;
-            /*case "BTL":
-                System.out.println("+++++++++++++++ no data found +++++++++++++++");
-                break;*/
             case "Zitouna":
                 if(visit(userAgent, bank.getUrl())) {
                     scrapBank(bank,
@@ -430,7 +416,8 @@ public class BankScrap {
 
         return str;
     }
-    public void scrapBank(Bank bank,
+
+    private void scrapBank(Bank bank,
                           String lastUpdate,
                           List<Element> htmlElementsList,
                           int codeIndex,
@@ -444,7 +431,6 @@ public class BankScrap {
             String code;
             Float buy, sell;
             int counterStart = 0;
-
 
             if (specialCharacters) {
                 htmlElementsList.forEach(element -> currencyDataList.add(

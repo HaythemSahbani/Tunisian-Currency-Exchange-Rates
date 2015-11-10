@@ -35,10 +35,6 @@
     "name":"Banque Tuniso-Koweitienne",
     "currencyLink":"http://www.btknet.com/site/fr/convertisseur.php?id_article=33"
   },
-  "BTL":{
-    "name":"Banque Tuniso-Libyenne",
-    "currencyLink":"http://www.btl.com.tn/portal/page?_dad=portal&_schema=PORTAL&_pageid=37%2C391598"
-  },
   "Zitouna":{
     "name":"Banque Zitouna",
     "currencyLink":"http://www.banquezitouna.com/Fr/convertisseur-de-devise_64_103"
